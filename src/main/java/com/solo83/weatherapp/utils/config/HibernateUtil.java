@@ -1,5 +1,6 @@
 package com.solo83.weatherapp.utils.config;
 
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
@@ -9,11 +10,10 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
 
 @Slf4j
+@UtilityClass
 public final class HibernateUtil {
     private static StandardServiceRegistry registry;
     private static SessionFactory sessionFactory;
-
-    private HibernateUtil() {}
 
     public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {

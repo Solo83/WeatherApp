@@ -2,7 +2,6 @@ package com.solo83.weatherapp.controller;
 
 import com.solo83.weatherapp.service.OpenWeatherApiService;
 import com.solo83.weatherapp.utils.exception.ServiceException;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,11 +16,12 @@ public class FindLocation extends HttpServlet {
     private final OpenWeatherApiService openWeatherApiService = OpenWeatherApiService.getInstance();
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String locationName = req.getParameter("locationName");
 
-        try (PrintWriter printWriter = resp.getWriter()) {
-            printWriter.write("<h1> Finded  locations: </h1>");
+        try  {
+            PrintWriter printWriter = resp.getWriter();
+            printWriter.write("<h1> Finded locations: </h1>");
             printWriter.write("<table>");
             printWriter.write("<tr>");
             printWriter.write("<th>Name</th>");
@@ -51,11 +51,9 @@ public class FindLocation extends HttpServlet {
                     <td>
                         %s
                     </td>
-                    </tr> \s
-                   \s""".formatted(getLocationRequest.getName(),getLocationRequest.getCountry(),getLocationRequest.getState()
+                    </tr>""".formatted(getLocationRequest.getName(),getLocationRequest.getCountry(),getLocationRequest.getState()
             ,getLocationRequest.getLatitude(),getLocationRequest.getLongitude(),getLocationRequest.getTemperature())));
-            printWriter.write("</tr>");
-            printWriter.write("/<table>");
+            printWriter.write("</table>");
         } catch (ServiceException e) {
             req.setAttribute("error", e.getMessage());
         }
