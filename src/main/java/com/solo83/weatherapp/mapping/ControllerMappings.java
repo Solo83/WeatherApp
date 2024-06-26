@@ -26,6 +26,7 @@ import java.util.Map;
 
 
 import com.solo83.weatherapp.controller.HomeController;
+import com.solo83.weatherapp.controller.Register;
 import com.solo83.weatherapp.controller.ThymeLeafController;
 import org.thymeleaf.web.IWebRequest;
 
@@ -39,12 +40,8 @@ public class ControllerMappings {
     static {
         controllersByURL = new HashMap<>();
         controllersByURL.put("/", new HomeController());
-        /*controllersByURL.put("/product/list", new ProductListController());
-        controllersByURL.put("/product/comments", new ProductCommentsController());
-        controllersByURL.put("/order/list", new OrderListController());
-        controllersByURL.put("/order/details", new OrderDetailsController());
-        controllersByURL.put("/subscribe", new SubscribeController());
-        controllersByURL.put("/userprofile", new UserProfileController());*/
+        controllersByURL.put("/register", new Register());
+
     }
 
 

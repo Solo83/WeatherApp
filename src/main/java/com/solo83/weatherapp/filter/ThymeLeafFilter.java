@@ -1,6 +1,7 @@
 package com.solo83.weatherapp.filter;
 
 import com.solo83.weatherapp.controller.ThymeLeafController;
+import com.solo83.weatherapp.dto.GetUserRequest;
 import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.mapping.ControllerMappings;
 import jakarta.servlet.Filter;
@@ -11,6 +12,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
@@ -23,7 +25,7 @@ import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 import java.io.IOException;
 import java.io.Writer;
 
-
+@Slf4j
 public class ThymeLeafFilter implements Filter {
 
     private ITemplateEngine templateEngine;
@@ -36,10 +38,12 @@ public class ThymeLeafFilter implements Filter {
 
 
 
-    private static void addUserToSession(final HttpServletRequest request) {
+/*    private static void addUserToSession(final HttpServletRequest request) {
         // Simulate a real user session by adding a user object
-        request.getSession(true).setAttribute("user", new User());
-    }
+        request.getSession(true).setAttribute("user", new User("John", "Doe"));
+        request.getSession(true).setAttribute("getUserRequest", new GetUserRequest());
+
+    }*/
 
 
 
@@ -55,7 +59,7 @@ public class ThymeLeafFilter implements Filter {
 
     public void doFilter(final ServletRequest request, final ServletResponse response,
                          final FilterChain chain) throws IOException, ServletException {
-        addUserToSession((HttpServletRequest)request);
+       // addUserToSession((HttpServletRequest)request);
         if (!process((HttpServletRequest)request, (HttpServletResponse)response)) {
             chain.doFilter(request, response);
         }
@@ -140,7 +144,7 @@ public class ThymeLeafFilter implements Filter {
 
         // Cache is set to true by default. Set to false if you want templates to
         // be automatically updated when modified.
-        templateResolver.setCacheable(true);
+        templateResolver.setCacheable(false);
 
         final TemplateEngine templateEngine = new TemplateEngine();
         templateEngine.setTemplateResolver(templateResolver);

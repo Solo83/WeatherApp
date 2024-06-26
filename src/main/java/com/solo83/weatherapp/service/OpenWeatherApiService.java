@@ -82,9 +82,4 @@ public final class OpenWeatherApiService {
         return sendApiRequest(uri);
     }
 
-    public static void main(String[] args) throws ServiceException {
-        OpenWeatherApiService service = OpenWeatherApiService.getInstance();
-        service.getLocations("Samara");
-    }
-    
 }
