@@ -15,16 +15,16 @@
 
 <div id="login">
     <h2 class="text-center text-info pt-5">Welcome to the WeatherApp</h2>
+
+
     <br/>
     <div class="container">
         <div class="row justify-content-center align-items-center">
             <div class="col-md-6">
                 <form class="card p-3 bg-light" action="search" method="get">
                     <div class="input-group">
-                        <label>
-                            <input class="form-control" type="search" placeholder="Search location" name="locationName">
-                        </label>
-                        <div class="input-group-append">
+                            <input class="form-control text-info" type="search" placeholder="Search location" name="locationName">
+                            <div class="input-group-append">
                                 <input type="submit" name="submit" class="btn btn-info btn-md" value="Search">
                             </div>
                     </div>
@@ -37,16 +37,16 @@
         <div id="login-row" class="row justify-content-center align-items-center">
             <div id="login-column" class="col-md-6 ">
                 <div id="login-box" class="card p-3 bg-light">
-                    <form id="login-form" class="form" action="  " method="post">
+                     <form id="login-form" class="form" th:action="@{/}" method="post">
                         <h3 class="text-center text-info">Login</h3>
                         <div class="form-group">
                             <label for="login-input" class="text-info">Username:</label><br>
-                            <input type="text" name="login" id="login-input" class="form-control">
+                            <input type="text" id="login-input" name = "login" class="form-control">
                         </div>
                         <div class="input-group">
                             <label for="password" class="text-info">Password:</label><br>
                             <div class="input-group " id="show_hide_password">
-                                <input type="password" name="password" id="password" class="form-control rounded-right">
+                                <input type="password" id="password" name="password" class="form-control rounded-right">
                                 <div class="input-group-addon">
                                     <i class="bi bi-eye-slash" id="togglePassword"></i>
                                 </div>
@@ -57,7 +57,7 @@
                             <input type="submit" name="submit" class="btn btn-info btn-md" value="Submit">
                         </div>
                         <div id="register-link" class="text-right">
-                            <a href="#" class="text-info">Register here</a>
+                            <a th:href="@{/register}" class="text-info">Register here</a>
                         </div>
                     </form>
                 </div>
