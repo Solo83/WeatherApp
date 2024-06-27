@@ -17,9 +17,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "Sessions")
 public class Session {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private String id;
 

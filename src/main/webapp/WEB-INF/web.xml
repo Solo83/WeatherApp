@@ -4,21 +4,13 @@
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
          version="5.0">
 
-    <display-name>thymeleafexamples-gtvg</display-name>
-
-    <session-config>
-        <session-timeout>60</session-timeout>
-    </session-config>
-
-    <filter>
-        <filter-name>ThymeLeafFilter</filter-name>
-        <filter-class>com.solo83.weatherapp.filter.ThymeLeafFilter</filter-class>
-    </filter>
-
-
-    <filter-mapping>
-        <filter-name>ThymeLeafFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
+    <servlet>
+        <servlet-name>Home</servlet-name>
+        <servlet-class>com.solo83.weatherapp.controller.Home</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Home</servlet-name>
+        <url-pattern></url-pattern>
+    </servlet-mapping>
 
 </web-app>
