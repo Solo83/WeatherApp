@@ -1,16 +1,47 @@
 package com.solo83.weatherapp.controller;
 
-import org.thymeleaf.ITemplateEngine;
-import org.thymeleaf.context.WebContext;
-import org.thymeleaf.web.IWebExchange;
+import com.solo83.weatherapp.dto.GetUserRequest;
+import com.solo83.weatherapp.service.UserService;
+import com.solo83.weatherapp.utils.exception.ServiceException;
+import com.solo83.weatherapp.utils.exception.ValidatorException;
+import com.solo83.weatherapp.utils.renderer.ThymeleafTemplateRenderer;
+import com.solo83.weatherapp.utils.validator.InputValidator;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.Writer;
+@WebServlet("/register")
+public class Register extends HttpServlet {
 
-public class Register implements ThymeLeafController {
+    private final ThymeleafTemplateRenderer thymeleafTemplateRenderer = ThymeleafTemplateRenderer.getInstance();
+    private final InputValidator validator = new InputValidator();
+    private final UserService userService = UserService.getInstance();
+
     @Override
-    public void process(IWebExchange webExchange, ITemplateEngine templateEngine, Writer writer) throws Exception {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        thymeleafTemplateRenderer.renderTemplate(req,resp,"register");
+    }
 
-        WebContext ctx = new WebContext(webExchange, webExchange.getLocale());
-        templateEngine.process("register", ctx, writer);
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+
+        try {
+            validator.validateUserName(req.getParameterMap(),"username");
+            validator.validatePassword(req.getParameterMap(),"password","password_confirm");
+
+            String username = req.getParameter("username");
+            String password = req.getParameter("password");
+
+            userService.save(new GetUserRequest(username,password));
+
+        } catch (ValidatorException | ServiceException e) {
+            req.setAttribute("error", e.getMessage());
+            thymeleafTemplateRenderer.renderTemplate(req, resp, "register");
+            return;
+        }
+
+        thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
+
     }
 }
