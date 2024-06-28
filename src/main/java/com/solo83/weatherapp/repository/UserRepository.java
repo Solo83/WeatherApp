@@ -12,6 +12,18 @@ import java.util.Optional;
 
 @Slf4j
 public class UserRepository implements Repository<Integer,User> {
+    
+    private static UserRepository INSTANCE;
+    
+        private UserRepository() {        
+        }
+        
+        public static UserRepository getInstance() {
+            if(INSTANCE == null) {
+                INSTANCE = new UserRepository();
+            }
+            return INSTANCE;
+        }
 
 
     @Override
