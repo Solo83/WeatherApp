@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -20,8 +21,13 @@ public class Search extends HttpServlet {
     OpenWeatherApiService openWeatherApiService = OpenWeatherApiService.getInstance();
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String locationName = req.getParameter("locationName");
+
+        if (locationName == null || locationName.isEmpty()) {
+            resp.sendRedirect("home");
+        }
+
         List<GetLocationRequest> locations = List.of();
 
         try {
@@ -33,6 +39,10 @@ public class Search extends HttpServlet {
 
         req.setAttribute("locations", locations);
         req.setAttribute("locationName", locationName);
+
+        if (locations.isEmpty()) {
+            resp.sendRedirect("home");
+        }
 
         thymeleafTemplateRenderer.renderTemplate(req, resp, "search");
     }

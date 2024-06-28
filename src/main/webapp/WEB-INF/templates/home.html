@@ -5,7 +5,6 @@
     <title></title>
 </head>
 <body>
-
 <div id="login">
     <h2 class="text-center text-info pt-5">Welcome to the WeatherApp</h2>
     <br/>
@@ -23,13 +22,12 @@
             </div>
         </div>
     </div>
-
     <div class="container">
         <div id="login-row" class="row justify-content-center align-items-center">
             <div id="login-column" class="col-md-6 ">
                 <div id="login-box" class="card p-3 bg-light">
                     <form id="login-form" class="form" th:action="@{/}" method="post">
-                        <h3 class="text-center text-info">Login</h3>
+                        <h3 class="text-center text-info">Sign In</h3>
                         <div class="form-group">
                             <label for="login-input" class="text-info">Username:</label><br>
                             <input type="text" id="login-input" name = "login" class="form-control">
@@ -48,7 +46,7 @@
                             <input type="submit" name="submit" class="btn btn-info btn-md" value="Submit">
                         </div>
                         <div id="register-link" class="text-right">
-                            <a th:href="@{/register}" class="text-info">Register here</a>
+                            <a th:href="@{/signup}" class="text-info">Sign Up</a>
                         </div>
                     </form>
                 </div>

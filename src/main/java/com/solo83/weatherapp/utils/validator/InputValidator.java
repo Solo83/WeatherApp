@@ -8,37 +8,36 @@ import java.util.regex.Pattern;
 @Slf4j
 public class InputValidator {
 
-    private final String PASSWORD_PATTERN = "^[a-zA-Z0-9]{4}$";
     private final String USERNAME_PATTERN = "^[a-zA-Z0-9]*$";
+    private final String PASSWORD_PATTERN = "^[a-zA-Z0-9]{4}$";
 
     private final Pattern passwordPattern = Pattern.compile(PASSWORD_PATTERN);
     private final Pattern usernamePattern = Pattern.compile(USERNAME_PATTERN);
 
     public void validatePassword(Map<String, String[]> parameterMap, String password, String passwordConfirm) throws ValidatorException {
 
-        String[] passwordValue = parameterMap.get(password);
-        String[] confirmationValue = parameterMap.get(passwordConfirm);
+        String passwordValue = parameterMap.get(password)[0];
+        String confirmationValue = parameterMap.get(passwordConfirm)[0];
 
-        if (passwordValue[0] == null || passwordValue[0].isEmpty()) {
+
+        if (passwordValue == null || passwordValue.isEmpty()) {
             log.error("Password value is missing");
             throw new ValidatorException("Password is empty");
         }
 
-        if (confirmationValue[0] == null || confirmationValue[0].isEmpty()) {
+        if (!passwordPattern.matcher(passwordValue).find()) {
+            log.error("Password should contain 4 letters or numbers, without spaces");
+            throw new ValidatorException("Password should contain 4 letters or numbers, without spaces");
+        }
+
+        if (confirmationValue  == null || confirmationValue.isEmpty()) {
             log.error("Password confirmation value is missing");
             throw new ValidatorException("Password confirmation is empty");
         }
 
-        String comparedPasswordValue = passwordValue[0];
-
-        if (!passwordPattern.matcher(comparedPasswordValue).find()) {
-            log.error("Password does not match pattern");
-            throw new ValidatorException("Password does not match pattern");
-        }
-
-        if (!confirmationValue[0].equals(passwordValue[0])) {
-            log.error("Password mismatch");
-            throw new ValidatorException("Password mismatch");
+        if (!confirmationValue.equals(passwordValue)) {
+            log.error("Password and confirmation does not match");
+            throw new ValidatorException("Password and confirmation does not match");
         }
 
         log.info("Password is VALID");
@@ -46,19 +45,16 @@ public class InputValidator {
 
     public void validateUserName(Map<String, String[]> parameterMap, String userName) throws ValidatorException {
 
-        String[] userNameValue = parameterMap.get(userName);
+        String userNameValue = parameterMap.get(userName)[0];
 
-
-        if (userNameValue  == null || userNameValue .length == 0) {
+        if (userNameValue  == null || userNameValue.isEmpty()) {
             log.error("Username is missing");
             throw new ValidatorException("Username is empty");
         }
 
-        String compareUserNameValue = userNameValue [0];
-
-        if (compareUserNameValue.trim().isEmpty() || !usernamePattern.matcher(compareUserNameValue).find()) {
-            log.error("Username does not match pattern");
-            throw new ValidatorException("Username does not match pattern");
+        if (userNameValue.trim().isEmpty() || !usernamePattern.matcher(userNameValue).find()) {
+            log.error("Username must contain only numbers and letters");
+            throw new ValidatorException("Username must contain only numbers and letters");
         }
 
         log.info("Username is VALID");
