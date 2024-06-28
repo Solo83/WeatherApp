@@ -11,8 +11,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@WebServlet("/register")
-public class Register extends HttpServlet {
+import java.util.Map;
+
+@WebServlet("/signup")
+public class SignUp extends HttpServlet {
 
     private final ThymeleafTemplateRenderer thymeleafTemplateRenderer = ThymeleafTemplateRenderer.getInstance();
     private final InputValidator validator = new InputValidator();
@@ -20,15 +22,17 @@ public class Register extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        thymeleafTemplateRenderer.renderTemplate(req,resp,"register");
+        thymeleafTemplateRenderer.renderTemplate(req,resp,"signup");
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
 
+        Map<String, String[]> parameterMap = req.getParameterMap();
+
         try {
-            validator.validateUserName(req.getParameterMap(),"username");
-            validator.validatePassword(req.getParameterMap(),"password","password_confirm");
+            validator.validateUserName(parameterMap,"username");
+            validator.validatePassword(parameterMap,"password","password_confirm");
 
             String username = req.getParameter("username");
             String password = req.getParameter("password");
@@ -37,7 +41,7 @@ public class Register extends HttpServlet {
 
         } catch (ValidatorException | ServiceException e) {
             req.setAttribute("error", e.getMessage());
-            thymeleafTemplateRenderer.renderTemplate(req, resp, "register");
+            thymeleafTemplateRenderer.renderTemplate(req, resp, "signup");
             return;
         }
 

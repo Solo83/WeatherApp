@@ -1,6 +1,5 @@
 package com.solo83.weatherapp.utils.renderer;
 
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -16,19 +15,19 @@ import org.thymeleaf.web.servlet.JakartaServletWebApplication;
 import java.io.IOException;
 
 @Slf4j
-public class ThymeleafTemplateRenderer extends HttpServlet {
-    
+public class ThymeleafTemplateRenderer {
+
     private static ThymeleafTemplateRenderer INSTANCE;
-    
-        private ThymeleafTemplateRenderer() {
+
+    private ThymeleafTemplateRenderer() {
+    }
+
+    public static ThymeleafTemplateRenderer getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new ThymeleafTemplateRenderer();
         }
-        
-        public static ThymeleafTemplateRenderer getInstance() {
-            if(INSTANCE == null) {
-                INSTANCE = new ThymeleafTemplateRenderer();
-            }
-            return INSTANCE;
-        }
+        return INSTANCE;
+    }
 
     public void renderTemplate(HttpServletRequest req, HttpServletResponse resp, String templateName) {
 
@@ -62,5 +61,5 @@ public class ThymeleafTemplateRenderer extends HttpServlet {
         return templateEngine;
 
     }
-    
+
 }
