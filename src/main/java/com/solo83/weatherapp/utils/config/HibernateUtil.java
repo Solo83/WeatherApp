@@ -6,9 +6,11 @@ import com.solo83.weatherapp.entity.User;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.tool.schema.Action;
+
+
+import java.io.FileInputStream;
+import java.util.Properties;
 
 
 @Slf4j
@@ -19,17 +21,16 @@ public final class HibernateUtil {
 
     public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
-            sessionFactory = new Configuration().addAnnotatedClass(User.class).addAnnotatedClass(Session.class).addAnnotatedClass(Location.class)
-                    // PostgreSQL
-                    .setProperty(AvailableSettings.JAKARTA_JDBC_URL, "jdbc:postgresql://localhost:5432/WeatherApp")
-                    // Credentials
-                    .setProperty(AvailableSettings.JAKARTA_JDBC_USER, "postgres").setProperty(AvailableSettings.JAKARTA_JDBC_PASSWORD, "123")
-                    // Automatic schema export
-                    .setProperty(AvailableSettings.JAKARTA_HBM2DDL_DATABASE_ACTION, Action.ACTION_UPDATE)
-                    // SQL statement logging
-                    .setProperty(AvailableSettings.SHOW_SQL, String.valueOf(true)).setProperty(AvailableSettings.FORMAT_SQL, String.valueOf(true)).setProperty(AvailableSettings.HIGHLIGHT_SQL, String.valueOf(true))
-                    // Create a new SessionFactory
-                    .buildSessionFactory();
+
+            Properties properties = new Properties();
+
+            try {
+                properties.load(new FileInputStream("hibernate.properties"));
+            } catch (Exception e) {
+                log.error("Cannot load properties file", e);
+            }
+
+            sessionFactory = new Configuration().addAnnotatedClass(User.class).addAnnotatedClass(Session.class).addAnnotatedClass(Location.class).mergeProperties(properties).buildSessionFactory();
         }
         return sessionFactory;
     }
