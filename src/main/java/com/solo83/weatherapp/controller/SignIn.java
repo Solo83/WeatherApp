@@ -9,7 +9,6 @@ import com.solo83.weatherapp.utils.exception.RepositoryException;
 import com.solo83.weatherapp.utils.exception.ServiceException;
 import com.solo83.weatherapp.utils.renderer.ThymeleafTemplateRenderer;
 import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
