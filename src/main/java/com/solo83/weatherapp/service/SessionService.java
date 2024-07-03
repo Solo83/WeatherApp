@@ -23,14 +23,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class SessionService {
 
-    Repository<String, UserSession> sessionRepository = SessionRepository.getInstance();
-
-    private final Integer SESSION_LIFETIME_IN_SECONDS = 300;
-    private final String SESSION_COOKIE = "userSession";
+    private final Repository<String, UserSession> sessionRepository = SessionRepository.getInstance();
+    private static final int SESSION_LIFETIME_IN_SECONDS = 300;
+    private static final String SESSION_COOKIE = "userSession";
     private static SessionService INSTANCE;
 
-    private SessionService() {
-    }
+    private SessionService() {}
 
     public static SessionService getInstance() {
         if (INSTANCE == null) {
@@ -40,30 +38,26 @@ public class SessionService {
     }
 
     @Getter
-    private static Map<String, UserSession> sessions = new ConcurrentHashMap<>();
+    private static final Map<String, UserSession> sessions = new ConcurrentHashMap<>();
 
     public HttpServletResponse setCookie(HttpServletRequest req, HttpServletResponse resp, User user) throws ServiceException, RepositoryException {
-
         String userId = user.getId().toString();
-        UserSession currentSession = getCurrentSession(user).get();
-
+        UserSession currentSession = getCurrentSession(user).orElseThrow(() -> new ServiceException("Failed to get or create session"));
         int maxAgeInSeconds = calculateMaxAgeInSeconds(currentSession.getExpiresAt());
 
-        if (!isSessionCookieAvailableInRequest(req)) {
-            Cookie cookie = new Cookie(SESSION_COOKIE, currentSession.getId());
-            cookie.setAttribute("userId", userId);
-            cookie.setMaxAge(maxAgeInSeconds);
-            cookie.setHttpOnly(true);
-            cookie.setSecure(true);
-            resp.addCookie(cookie);
-            log.info("New Cookie set to session {}, expires at {}", cookie.getValue(), cookie.getMaxAge());
+        Optional<Cookie> sessionCookieOpt = getSessionCookie(req);
+        Cookie sessionCookie = sessionCookieOpt.orElseGet(() -> new Cookie(SESSION_COOKIE, currentSession.getId()));
+
+        sessionCookie.setAttribute("userId", userId);
+        sessionCookie.setMaxAge(maxAgeInSeconds);
+        sessionCookie.setHttpOnly(true);
+        sessionCookie.setSecure(true);
+        resp.addCookie(sessionCookie);
+
+        if (sessionCookieOpt.isPresent()) {
+            log.info("Cookie MaxAge Updated {}, expires at {}", sessionCookie.getValue(), sessionCookie.getMaxAge());
         } else {
-            Cookie cookie = getSessionCookie(req).get();
-            cookie.setMaxAge(maxAgeInSeconds);
-            cookie.setHttpOnly(true);
-            cookie.setSecure(true);
-            resp.addCookie(cookie);
-            log.info("Cookie MaxAge Updated {}, expires at {}", cookie.getValue(), cookie.getMaxAge());
+            log.info("New Cookie set to session {}, expires at {}", sessionCookie.getValue(), sessionCookie.getMaxAge());
         }
 
         sessions.put(userId, currentSession);
@@ -74,30 +68,21 @@ public class SessionService {
         sessions.remove(userId);
     }
 
-
-    private boolean isSessionCookieAvailableInRequest(HttpServletRequest req) {
-        Optional<Cookie> sessionCookie = getSessionCookie(req);
-        return sessionCookie.isPresent();
-    }
-
     private int calculateMaxAgeInSeconds(LocalDateTime expiresAt) {
-        LocalDateTime now = LocalDateTime.now();
-        long maxAgeInSeconds = Duration.between(now, expiresAt).getSeconds();
+        long maxAgeInSeconds = Duration.between(LocalDateTime.now(), expiresAt).getSeconds();
         return maxAgeInSeconds < 0 ? 0 : (int) maxAgeInSeconds;
     }
 
     private Optional<Cookie> getSessionCookie(HttpServletRequest req) {
-        Cookie[] cookies = req.getCookies();
-        return Arrays.stream(cookies).filter(cookie -> cookie.getName().equals(SESSION_COOKIE)).findFirst();
+        return Optional.ofNullable(req.getCookies())
+                .flatMap(cookies -> Arrays.stream(cookies)
+                        .filter(cookie -> SESSION_COOKIE.equals(cookie.getName()))
+                        .findFirst());
     }
 
     private Optional<UserSession> getCurrentSession(User user) throws RepositoryException {
-        Optional<UserSession> session;
-        try {
-            session = sessionRepository.findById(user.getId().toString());
-        } catch (RepositoryException e) {
-            session = Optional.empty();
-        }
+        String userId = user.getId().toString();
+        Optional<UserSession> session = sessionRepository.findById(userId);
 
         if (session.isPresent()) {
             UserSession currentSession = session.get();
@@ -109,25 +94,25 @@ public class SessionService {
                 sessionRepository.update(currentSession);
                 log.info("Session updated, expires at {}", currentSession.getExpiresAt());
             }
+            return session;
         } else {
-            session = Optional.of(createNewSession(user));
-            save(session.get());
-            log.info("New session created and saved to DB");
+            return Optional.of(createAndSaveNewSession(user));
         }
-        return session;
     }
 
     private boolean isSessionValid(LocalDateTime expiresAt) {
-        LocalDateTime currentTime = LocalDateTime.now();
-        return currentTime.isBefore(expiresAt);
+        return LocalDateTime.now().isBefore(expiresAt);
     }
 
     private void setSessionExpirationTime(UserSession session) {
         session.setExpiresAt(LocalDateTime.now().plusSeconds(SESSION_LIFETIME_IN_SECONDS));
     }
 
-    private void save(UserSession session) throws RepositoryException {
-        sessionRepository.save(session);
+    private UserSession createAndSaveNewSession(User user) throws RepositoryException {
+        UserSession newSession = createNewSession(user);
+        sessionRepository.save(newSession);
+        log.info("New session created and saved to DB");
+        return newSession;
     }
 
     private UserSession createNewSession(User user) {
@@ -135,5 +120,4 @@ public class SessionService {
         LocalDateTime expiresAt = LocalDateTime.now().plusSeconds(SESSION_LIFETIME_IN_SECONDS);
         return new UserSession(sessionId, user, expiresAt);
     }
-
 }
