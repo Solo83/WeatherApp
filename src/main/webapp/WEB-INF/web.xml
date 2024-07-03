@@ -6,10 +6,16 @@
     <servlet>
         <servlet-name>Home</servlet-name>
         <servlet-class>com.solo83.weatherapp.controller.Home</servlet-class>
+        <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
         <servlet-name>Home</servlet-name>
         <url-pattern/>
     </servlet-mapping>
+
+    <!-- configure the context listener -->
+    <listener>
+        <listener-class>com.solo83.weatherapp.utils.listener.AppContextListener</listener-class>
+    </listener>
 
 </web-app>
