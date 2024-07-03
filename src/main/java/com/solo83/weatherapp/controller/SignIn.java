@@ -2,11 +2,13 @@ package com.solo83.weatherapp.controller;
 
 import com.solo83.weatherapp.dto.GetUserRequest;
 import com.solo83.weatherapp.entity.User;
+import com.solo83.weatherapp.entity.UserSession;
 import com.solo83.weatherapp.service.SessionService;
 import com.solo83.weatherapp.service.UserService;
 import com.solo83.weatherapp.utils.exception.RepositoryException;
 import com.solo83.weatherapp.utils.exception.ServiceException;
 import com.solo83.weatherapp.utils.renderer.ThymeleafTemplateRenderer;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -27,7 +29,7 @@ public class SignIn extends HttpServlet {
 
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
 
         String username = req.getParameter("username");
         String password = req.getParameter("password");
@@ -43,6 +45,9 @@ public class SignIn extends HttpServlet {
         try {
             user = userService.getUser(new GetUserRequest(username, password));
             resp = sessionService.setCookie(req,resp,user);
+            UserSession session = SessionService.getSessions().get(user.getId().toString());
+            ServletContext servletContext = req.getServletContext();
+            servletContext.setAttribute("session",session);
         } catch (ServiceException | RepositoryException e) {
             req.setAttribute("error", e.getMessage());
             thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
