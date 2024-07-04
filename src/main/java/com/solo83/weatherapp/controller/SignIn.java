@@ -41,7 +41,7 @@ public class SignIn extends HttpServlet {
             user = userService.getUser(new GetUserRequest(username, password));
             resp = cookieService.setCookie(resp,user);
             getServletContext().setAttribute("LOGGED_USER", user.getLogin());
-            log.info(getServletContext().getAttribute(("LOGGED_USER")).toString());
+
         } catch (ServiceException | RepositoryException e) {
             req.setAttribute("error", e.getMessage());
             thymeleafTemplateRenderer.renderTemplate(req, resp, "home");

@@ -74,7 +74,23 @@ public class SessionRepository implements Repository<String, UserSession> {
 
     @Override
     public List<UserSession> findAll() throws RepositoryException {
-        return List.of();
+        Transaction transaction = null;
+        List<UserSession> userSessions;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Query<UserSession> query = session.createQuery("from UserSession ", UserSession.class);
+            userSessions = query.getResultList();
+            log.info("Finded userSessions {}", userSessions);
+            transaction.commit();
+        } catch (Exception e) {
+            log.error("Error while getting userSessions:", e);
+            if (transaction != null) {
+                transaction.rollback();
+                log.info("Transaction is {}", transaction.getStatus());
+            }
+            throw new RepositoryException("Error while getting userSessions");
+        }
+        return userSessions;
     }
 
     @Override
@@ -102,7 +118,24 @@ public class SessionRepository implements Repository<String, UserSession> {
 
     @Override
     public boolean delete(String id) throws RepositoryException {
-        return false;
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            try {
+                transaction = session.beginTransaction();
+                UserSession userSession = session.get(UserSession.class, id);
+                session.remove(userSession);
+                transaction.commit();
+                log.info("Session deleted: {}", userSession.getId());
+            } catch (Exception e) {
+                log.error("Error while deleting session:", e);
+                if (transaction != null) {
+                    transaction.rollback();
+                    log.info("Transaction is {}", transaction.getStatus());
+                }
+                throw new RepositoryException("Error updating session");
+            }
+            return true;
+        }
     }
 
     @Override
