@@ -13,8 +13,8 @@ public class AppContextListener implements ServletContextListener {
     static ServletContext context;
 
     final Runnable cookieChecker = () -> {
-        System.out.println(context.getAttribute("session"));
-        //System.out.println("hello world");
+       // System.out.println(context.getAttribute("activeUser"));
+
     };
     private volatile ScheduledExecutorService executor;
 
@@ -22,7 +22,7 @@ public class AppContextListener implements ServletContextListener {
     {
         context = sce.getServletContext();
         executor = Executors.newScheduledThreadPool(2);
-        executor.scheduleAtFixedRate(cookieChecker, 0, 3, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(cookieChecker, 0, 3, TimeUnit.MINUTES);
     }
 
     public void contextDestroyed(ServletContextEvent sce)

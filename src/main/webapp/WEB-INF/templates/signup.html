@@ -39,12 +39,15 @@
                     <!-- Button -->
                     <div class="row">
                         <div class="col-4">
-                        <input type="submit" name="submit" class="btn btn-info btn-md" value="Register">
+                        <input type="submit" name="submit" class="w-100 btn btn-info btn-md" value="Register">
                         </div>
-                        <div class="col-8 text-center">
-                            <a class="text-danger" th:text="${error}"></a>
+                        <div class="col-4 text-center">
+                        </div>
+                        <div class="col-4">
+                            <a href="home" class="w-100 btn btn-info btn-md" role="button">Back</a>
                         </div>
                     </div>
+                    <a class="font-weight-light text-danger" th:text="${error}"></a>
                 </form>
             </div>
         </div>

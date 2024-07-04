@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -21,27 +20,33 @@ public class Search extends HttpServlet {
     OpenWeatherApiService openWeatherApiService = OpenWeatherApiService.getInstance();
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         String locationName = req.getParameter("locationName");
 
         if (locationName == null || locationName.isEmpty()) {
-            resp.sendRedirect("home");
+            req.setAttribute("error", "Enter a valid location name");
+            thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
+            return;
         }
 
-        List<GetLocationRequest> locations = List.of();
+        List<GetLocationRequest> locations;
 
         try {
             locations = openWeatherApiService.getLocations(locationName);
         } catch (ServiceException e) {
             log.error(e.getMessage());
-            req.setAttribute("error", "Error occurred while getting locations");
+            req.setAttribute("error", "openWeatherApi error");
+            thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
+            return;
         }
 
         req.setAttribute("locations", locations);
         req.setAttribute("locationName", locationName);
 
         if (locations.isEmpty()) {
-            resp.sendRedirect("home");
+            req.setAttribute("error", "Nothing finded");
+            thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
+            return;
         }
 
         thymeleafTemplateRenderer.renderTemplate(req, resp, "search");
