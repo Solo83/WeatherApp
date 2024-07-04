@@ -37,7 +37,7 @@ public class UserRepository implements Repository<Integer,User> {
                 Query<User> query = session.createQuery("from User where id = :id", User.class);
                 query.setParameter("id", id);
                 findedUser = Optional.of(query.getSingleResult());
-                log.info("Finded user: {}", findedUser.get());
+                log.info("Finded user: {}", findedUser.get().getLogin());
             } catch (Exception e) {
                 log.error("Error while getting user by Id:", e);
                 if (transaction != null) {
@@ -59,7 +59,7 @@ public class UserRepository implements Repository<Integer,User> {
                 Query<User> query = session.createQuery("from User where login = :userName", User.class);
                 query.setParameter("userName", userName);
                 findedUser = Optional.of(query.getSingleResult());
-                log.info("Finded user: {}", findedUser.get());
+                log.info("Finded user: {}", findedUser.get().getLogin());
             } catch (Exception e) {
                 log.error("Error while getting user by name:", e);
                 if (transaction != null) {

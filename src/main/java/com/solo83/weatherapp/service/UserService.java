@@ -52,7 +52,7 @@ public class UserService {
             throw new ServiceException("Wrong password");
         }
 
-        log.info(user.toString());
+        log.info("Current user: {}", user.getLogin());
 
         return user;
 

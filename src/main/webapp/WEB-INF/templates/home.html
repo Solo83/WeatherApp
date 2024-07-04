@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
 <head>
     <div th:replace="~{fragments/header :: header}"></div>
     <title></title>
 </head>
 <body>
 <div id="login">
-    <h2 class="text-center text-info pt-5">Welcome to the WeatherApp</h2>
+    <h2 class="text-center text-info pt-5">Welcome to the WeatherApp <a th:text="${application.LOGGED_USER}? ${application.LOGGED_USER}:''"></a></h2>
     <br/>
     <div class="container">
         <div class="row justify-content-center align-items-center">
@@ -49,9 +49,8 @@
                             <a th:href="@{/signup}" class="text-info">Sign Up</a>
                         </div>
                         <br/>
-                        <div class="text-right">
-                            <a class="text-danger" th:text="${error}"></a>
-                        </div>
+                        <br/>
+                        <a class="font-weight-light text-danger" th:text="${error}"></a>
                     </form>
                 </div>
             </div>
