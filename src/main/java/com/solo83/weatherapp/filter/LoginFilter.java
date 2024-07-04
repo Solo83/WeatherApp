@@ -61,7 +61,7 @@ public class LoginFilter implements Filter {
                         return;
                     }
                 } catch (NullPointerException e) {
-                    req.setAttribute("error", "Please SignIn");
+                    req.setAttribute("error", "Session absent, please SignIn");
                     thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
                     return;
                 }

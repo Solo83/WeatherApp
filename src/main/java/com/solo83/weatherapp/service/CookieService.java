@@ -46,7 +46,7 @@ public class CookieService {
         sessionCookie.setSecure(true);
         resp.addCookie(sessionCookie);
 
-        log.info("New Cookie set to session {}, expires at {}", sessionCookie.getValue(), sessionCookie.getMaxAge());
+        log.info("Cookie set to session {}, expires at {}", sessionCookie.getValue(), sessionCookie.getMaxAge());
 
        /* if (sessionCookieOpt.isPresent()) {
             log.info("Cookie MaxAge Updated {}, expires at {}", sessionCookie.getValue(), sessionCookie.getMaxAge());
