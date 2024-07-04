@@ -32,7 +32,14 @@ public class SessionService {
 
     public Optional<UserSession> getCurrentSession(User user) throws RepositoryException {
         String userId = user.getId().toString();
-        Optional<UserSession> session = sessionRepository.findByUserId(userId);
+
+        Optional<UserSession> session;
+
+        try {
+            session = sessionRepository.findByUserId(userId);
+        } catch (RepositoryException e) {
+            return Optional.of(createAndSaveNewSession(user));
+        }
 
         if (session.isPresent()) {
             UserSession currentSession = session.get();
@@ -46,6 +53,7 @@ public class SessionService {
             }
             sessionPersistanceService.addSession(currentSession);
             return session;
+
         } else {
             return Optional.of(createAndSaveNewSession(user));
         }

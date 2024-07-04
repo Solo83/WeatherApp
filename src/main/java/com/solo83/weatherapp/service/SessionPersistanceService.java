@@ -25,8 +25,8 @@ public class SessionPersistanceService {
     @Getter
     public static final Map<String, UserSession> sessions = new ConcurrentHashMap<>();
 
-    public void removeSession(String userId) {
-        sessions.remove(userId);
+    public void removeSession(String sessionId) {
+        sessions.remove(sessionId);
     }
 
     public UserSession getSession(String sessionId) {
