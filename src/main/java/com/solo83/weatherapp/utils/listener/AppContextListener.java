@@ -1,28 +1,35 @@
 package com.solo83.weatherapp.utils.listener;
 
 import com.solo83.weatherapp.entity.UserSession;
-import com.solo83.weatherapp.service.SessionPersistanceService;
 import com.solo83.weatherapp.service.SessionService;
+import com.solo83.weatherapp.utils.exception.RepositoryException;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.Map;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 public class AppContextListener implements ServletContextListener {
 
     SessionService sessionService = SessionService.getInstance();
-    SessionPersistanceService sessionPersistanceService = SessionPersistanceService.getInstance();
+
 
     final Runnable sessionChecker = () -> {
 
-        Map<String, UserSession> sessions = SessionPersistanceService.getSessions();
-        for (UserSession session : sessions.values()) {
-            if (!sessionService.isSessionValid(session.getExpiresAt())) {
-                sessionPersistanceService.removeSession(session.getId());
+        try {
+            for (UserSession session : sessionService.getAll()) {
+                if (!sessionService.isSessionValid(session.getExpiresAt())) {
+                   String sessionId = session.getId();
+                   sessionService.remove(session.getId());
+                   log.info("Deleted expired session {}",sessionId);
+                }
             }
+        } catch (RepositoryException e) {
+            log.error("Error while removing session",e);
         }
     };
     private volatile ScheduledExecutorService executor;

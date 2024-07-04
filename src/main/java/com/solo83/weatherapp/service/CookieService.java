@@ -33,7 +33,7 @@ public class CookieService {
 
     public HttpServletResponse setCookie(HttpServletResponse resp, User user) throws ServiceException, RepositoryException {
         //String userId = user.getId().toString();
-        UserSession currentSession = sessionService.getCurrentSession(user).orElseThrow(() -> new ServiceException("Failed to get or create session"));
+        UserSession currentSession = sessionService.get(user).orElseThrow(() -> new ServiceException("Failed to get or create session"));
         //int maxAgeInSeconds = calculateMaxAgeInSeconds(currentSession.getExpiresAt());
         int maxAgeInSeconds = -1;
 

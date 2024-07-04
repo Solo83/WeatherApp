@@ -7,6 +7,7 @@ import com.solo83.weatherapp.utils.exception.RepositoryException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,7 +16,6 @@ import java.util.UUID;
 public class SessionService {
 
     private final SessionRepository sessionRepository = SessionRepository.getInstance();
-    private final SessionPersistanceService sessionPersistanceService = SessionPersistanceService.getInstance();
     private static final int SESSION_LIFETIME_IN_SECONDS = 5*60;
 
     private static SessionService INSTANCE;
@@ -30,15 +30,14 @@ public class SessionService {
     }
 
 
-    public Optional<UserSession> getCurrentSession(User user) throws RepositoryException {
+    public Optional<UserSession> get(User user) throws RepositoryException {
         String userId = user.getId().toString();
-
         Optional<UserSession> session;
 
         try {
             session = sessionRepository.findByUserId(userId);
         } catch (RepositoryException e) {
-            return Optional.of(createAndSaveNewSession(user));
+            return Optional.of(createAndSave(user));
         }
 
         if (session.isPresent()) {
@@ -51,19 +50,26 @@ public class SessionService {
                 sessionRepository.update(currentSession);
                 log.info("Session updated, expires at {}", currentSession.getExpiresAt());
             }
-            sessionPersistanceService.addSession(currentSession);
             return session;
 
         } else {
-            return Optional.of(createAndSaveNewSession(user));
+            return Optional.of(createAndSave(user));
         }
+    }
+
+    public boolean remove(String sessionId) throws RepositoryException {
+        return sessionRepository.delete(sessionId);
+    }
+
+    public List<UserSession> getAll() throws RepositoryException {
+        return sessionRepository.findAll();
     }
 
     public boolean isSessionValid(LocalDateTime expiresAt) {
         return LocalDateTime.now().isBefore(expiresAt);
     }
 
-    public Optional<UserSession> getSessionById(String sessionId) throws RepositoryException {
+    public Optional<UserSession> getById(String sessionId) throws RepositoryException {
         return sessionRepository.findById(sessionId);
     }
 
@@ -71,15 +77,14 @@ public class SessionService {
         session.setExpiresAt(LocalDateTime.now().plusSeconds(SESSION_LIFETIME_IN_SECONDS));
     }
 
-    private UserSession createAndSaveNewSession(User user) throws RepositoryException {
-        UserSession newSession = createNewSession(user);
-        sessionPersistanceService.addSession(newSession);
+    private UserSession createAndSave(User user) throws RepositoryException {
+        UserSession newSession = create(user);
         sessionRepository.save(newSession);
         log.info("New session created and saved to DB");
         return newSession;
     }
 
-    private UserSession createNewSession(User user) {
+    private UserSession create(User user) {
         String sessionId = UUID.randomUUID().toString();
         LocalDateTime expiresAt = LocalDateTime.now().plusSeconds(SESSION_LIFETIME_IN_SECONDS);
         return new UserSession(sessionId, user, expiresAt);
