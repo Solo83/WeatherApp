@@ -4,6 +4,7 @@ import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.entity.UserSession;
 import com.solo83.weatherapp.repository.SessionRepository;
 import com.solo83.weatherapp.utils.exception.RepositoryException;
+import com.solo83.weatherapp.utils.exception.ServiceException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
@@ -30,9 +31,14 @@ public class SessionService {
     }
 
 
-    public Optional<UserSession> get(User user) throws RepositoryException {
+    public UserSession get (User user) throws RepositoryException, ServiceException {
+        return getUserSession(user).orElseThrow(() -> new ServiceException("Failed to get or create session"));
+    }
+
+    private Optional<UserSession> getUserSession(User user) throws RepositoryException {
         String userId = user.getId().toString();
         Optional<UserSession> session;
+
 
         try {
             session = sessionRepository.findByUserId(userId);
@@ -50,6 +56,7 @@ public class SessionService {
                 sessionRepository.update(currentSession);
                 log.info("Session updated, expires at {}", currentSession.getExpiresAt());
             }
+
             return session;
 
         } else {
@@ -57,8 +64,8 @@ public class SessionService {
         }
     }
 
-    public boolean remove(String sessionId) throws RepositoryException {
-        return sessionRepository.delete(sessionId);
+    public void remove(String sessionId) throws RepositoryException {
+        sessionRepository.delete(sessionId);
     }
 
     public List<UserSession> getAll() throws RepositoryException {
@@ -69,8 +76,12 @@ public class SessionService {
         return LocalDateTime.now().isBefore(expiresAt);
     }
 
-    public Optional<UserSession> getById(String sessionId) throws RepositoryException {
-        return sessionRepository.findById(sessionId);
+    public Optional<UserSession> getById(String sessionId) {
+        try {
+            return sessionRepository.findById(sessionId);
+        } catch (RepositoryException e) {
+            return Optional.empty();
+        }
     }
 
     private void setSessionExpirationTime(UserSession session) {
@@ -89,4 +100,6 @@ public class SessionService {
         LocalDateTime expiresAt = LocalDateTime.now().plusSeconds(SESSION_LIFETIME_IN_SECONDS);
         return new UserSession(sessionId, user, expiresAt);
     }
+
+
 }

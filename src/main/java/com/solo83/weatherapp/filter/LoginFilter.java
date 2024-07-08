@@ -1,6 +1,5 @@
 package com.solo83.weatherapp.filter;
 
-import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.entity.UserSession;
 import com.solo83.weatherapp.service.CookieService;
 import com.solo83.weatherapp.service.SessionService;
@@ -18,9 +17,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -28,12 +24,9 @@ import java.util.Set;
 @WebFilter("/*")
 public class LoginFilter implements Filter {
 
-    private static final Set<String> ALLOWED_PATHS = Collections.unmodifiableSet(new HashSet<>(
-            Arrays.asList("/signin", "/signup", "/home", "")));
-
+    private static final Set<String> ALLOWED_PATHS = Set.of("/signin", "/signup", "/home", "/search", "/");
     private static final String ERROR_MESSAGE_SIGN_IN = "Please SignIn";
     private static final String ERROR_MESSAGE_SESSION_EXPIRED = "Session expired, please SignIn";
-
     private static final SessionService sessionService = SessionService.getInstance();
     private final CookieService cookieService = CookieService.getInstance();
     private final ThymeleafTemplateRenderer thymeleafTemplateRenderer = ThymeleafTemplateRenderer.getInstance();
@@ -51,65 +44,70 @@ public class LoginFilter implements Filter {
             return;
         }
 
-        Optional<Cookie> cookie = cookieService.getSessionCookie(req);
-        if (cookie.isPresent()) {
-            processSessionCookie(req, resp, chain, cookie.get());
-        } else {
-            redirectToHomeWithError(req, resp, ERROR_MESSAGE_SIGN_IN);
+        Optional<Cookie> cookie = cookieService.getCookie(req);
+
+        cookie.ifPresentOrElse(
+                value -> processSessionCookie(req, resp, chain, value),
+                () -> redirectHomeWithError(req, resp, ERROR_MESSAGE_SIGN_IN)
+        );
+    }
+
+    private void processSessionCookie(HttpServletRequest req, HttpServletResponse resp, FilterChain chain, Cookie cookie) {
+        String sessionId = cookie.getValue();
+        Optional<UserSession> session = sessionService.getById(sessionId);
+
+        session.ifPresentOrElse(
+                userSession -> {
+                    if (sessionService.isSessionValid(userSession.getExpiresAt())) {
+                        handleValidSession(req, resp, chain, userSession);
+                    } else {
+                        invalidateSession(req, resp, cookie, sessionId);
+                    }
+                },
+                () -> handleInvalidSession(req, resp, cookie)
+        );
+    }
+
+    private void handleValidSession(HttpServletRequest req, HttpServletResponse resp, FilterChain chain, UserSession userSession) {
+        setUserAttribute(req, userSession.getUser().getLogin());
+        log.info("Session valid, LOGGED_USER is {}", userSession.getUser().getLogin());
+        try {
+            chain.doFilter(req, resp);
+        } catch (IOException | ServletException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    private void invalidateSession(HttpServletRequest req, HttpServletResponse resp, Cookie cookie, String sessionId) {
+        try {
+            sessionService.remove(sessionId);
+            cookieService.invalidateCookie(resp, cookie);
+            clearUserAttribute(req);
+            redirectHomeWithError(req, resp, LoginFilter.ERROR_MESSAGE_SESSION_EXPIRED);
+        } catch (RepositoryException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void handleInvalidSession(HttpServletRequest req, HttpServletResponse resp, Cookie cookie) {
+        clearUserAttribute(req);
+        cookieService.invalidateCookie(resp, cookie);
+        redirectHomeWithError(req, resp, ERROR_MESSAGE_SIGN_IN);
+    }
+
+    private void setUserAttribute(HttpServletRequest req, String userLogin) {
+        req.getServletContext().setAttribute("LOGGED_USER", userLogin);
+    }
+
+    private void clearUserAttribute(HttpServletRequest req) {
+        req.getServletContext().removeAttribute("LOGGED_USER");
     }
 
     private String extractPath(HttpServletRequest req) {
         return req.getRequestURI().substring(req.getContextPath().length()).replaceAll("[/]+$", "");
     }
 
-    private void processSessionCookie(HttpServletRequest req, HttpServletResponse resp, FilterChain chain, Cookie cookie) throws IOException, ServletException {
-        String sessionId = cookie.getValue();
-        Optional<UserSession> session;
-
-        try {
-            session = sessionService.getById(sessionId);
-        } catch (RepositoryException e) {
-            session = Optional.empty();
-        }
-
-        if (session.isEmpty()) {
-            handleInvalidSession(req, resp, cookie, ERROR_MESSAGE_SIGN_IN);
-        } else {
-            boolean sessionValid = sessionService.isSessionValid(session.get().getExpiresAt());
-            if (!sessionValid) {
-                handleExpiredSession(req, resp, cookie, sessionId);
-            } else {
-                User user = session.get().getUser();
-                req.getServletContext().setAttribute("LOGGED_USER", user.getLogin());
-                log.info("LOGGED_USER is {}", user.getLogin());
-                chain.doFilter(req, resp);
-            }
-        }
-    }
-
-    private void handleInvalidSession(HttpServletRequest req, HttpServletResponse resp, Cookie cookie, String errorMessage) {
-        req.getServletContext().setAttribute("LOGGED_USER", "");
-        invalidateCookie(resp, cookie);
-        redirectToHomeWithError(req, resp, errorMessage);
-    }
-
-    private void handleExpiredSession(HttpServletRequest req, HttpServletResponse resp, Cookie cookie, String sessionId) {
-        try {
-            sessionService.remove(sessionId);
-            invalidateCookie(resp, cookie);
-        } catch (RepositoryException e) {
-            log.error("Error removing session", e);
-        }
-        handleInvalidSession(req, resp, cookie, ERROR_MESSAGE_SESSION_EXPIRED);
-    }
-
-    private void invalidateCookie(HttpServletResponse resp, Cookie cookie) {
-        cookie.setMaxAge(0);
-        resp.addCookie(cookie);
-    }
-
-    private void redirectToHomeWithError(HttpServletRequest req, HttpServletResponse resp, String errorMessage) {
+    private void redirectHomeWithError(HttpServletRequest req, HttpServletResponse resp, String errorMessage) {
         req.setAttribute("error", errorMessage);
         thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
     }
