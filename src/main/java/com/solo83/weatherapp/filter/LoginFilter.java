@@ -1,5 +1,6 @@
 package com.solo83.weatherapp.filter;
 
+import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.entity.UserSession;
 import com.solo83.weatherapp.service.CookieService;
 import com.solo83.weatherapp.service.SessionService;
@@ -24,7 +25,7 @@ import java.util.Set;
 @WebFilter("/*")
 public class LoginFilter implements Filter {
 
-    private static final Set<String> ALLOWED_PATHS = Set.of("/signin", "/signup", "/home", "/search", "/");
+    private static final Set<String> ALLOWED_PATHS = Set.of("/signin", "/signup", "/home", "/search","");
     private static final String ERROR_MESSAGE_SIGN_IN = "Please SignIn";
     private static final String ERROR_MESSAGE_SESSION_EXPIRED = "Session expired, please SignIn";
     private static final SessionService sessionService = SessionService.getInstance();
@@ -46,10 +47,11 @@ public class LoginFilter implements Filter {
 
         Optional<Cookie> cookie = cookieService.getCookie(req);
 
-        cookie.ifPresentOrElse(
-                value -> processSessionCookie(req, resp, chain, value),
-                () -> redirectHomeWithError(req, resp, ERROR_MESSAGE_SIGN_IN)
-        );
+        if (cookie.isPresent()) {
+            processSessionCookie(req, resp, chain, cookie.get());
+        } else {
+            redirectHomeWithError(req, resp, ERROR_MESSAGE_SIGN_IN);
+        }
     }
 
     private void processSessionCookie(HttpServletRequest req, HttpServletResponse resp, FilterChain chain, Cookie cookie) {
@@ -69,8 +71,8 @@ public class LoginFilter implements Filter {
     }
 
     private void handleValidSession(HttpServletRequest req, HttpServletResponse resp, FilterChain chain, UserSession userSession) {
-        setUserAttribute(req, userSession.getUser().getLogin());
-        log.info("Session valid, LOGGED_USER is {}", userSession.getUser().getLogin());
+        setUserAttribute(req, userSession.getUser());
+        log.info("Session valid, USER is {}", userSession.getUser().getLogin());
         try {
             chain.doFilter(req, resp);
         } catch (IOException | ServletException e) {
@@ -95,12 +97,12 @@ public class LoginFilter implements Filter {
         redirectHomeWithError(req, resp, ERROR_MESSAGE_SIGN_IN);
     }
 
-    private void setUserAttribute(HttpServletRequest req, String userLogin) {
-        req.getServletContext().setAttribute("LOGGED_USER", userLogin);
+    private void setUserAttribute(HttpServletRequest req, User user ) {
+        req.getServletContext().setAttribute("user", user);
     }
 
     private void clearUserAttribute(HttpServletRequest req) {
-        req.getServletContext().removeAttribute("LOGGED_USER");
+        req.getServletContext().removeAttribute("user");
     }
 
     private String extractPath(HttpServletRequest req) {

@@ -43,7 +43,7 @@ public class SignIn extends HttpServlet {
             user = userService.getUser(new GetUserRequest(username, password));
             session = sessionService.get(user);
             cookieService.setCookie(resp,session.getId());
-            getServletContext().setAttribute("LOGGED_USER", user.getLogin());
+            getServletContext().setAttribute("user", user);
 
         } catch (ServiceException | RepositoryException e) {
             req.setAttribute("error", e.getMessage());
