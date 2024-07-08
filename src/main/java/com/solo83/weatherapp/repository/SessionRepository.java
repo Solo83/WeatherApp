@@ -80,7 +80,7 @@ public class SessionRepository implements Repository<String, UserSession> {
             transaction = session.beginTransaction();
             Query<UserSession> query = session.createQuery("from UserSession ", UserSession.class);
             userSessions = query.getResultList();
-            log.info("Finded userSessions {}", userSessions);
+            log.info("Finded userSessions {}", userSessions.size());
             transaction.commit();
         } catch (Exception e) {
             log.error("Error while getting userSessions:", e);

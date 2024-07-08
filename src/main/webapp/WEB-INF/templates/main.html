@@ -6,8 +6,9 @@
 </head>
 <body>
 <div id="login">
-    <h2 class="text-center text-info pt-5">Welcome to the WeatherApp <a
-            th:text="${application.LOGGED_USER}? ${application.LOGGED_USER}:''"></a>
+    <h2 class="text-center text-info pt-5">Welcome to the WeatherApp
+            <a
+            th:text="${application.user.getLogin()}? ${application.user.getLogin()}:''"></a>
             <a href="logout" class="btn btn-info btn-md" role="button">Logout</a>
     </h2>
     <br/>
