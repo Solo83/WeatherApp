@@ -20,25 +20,25 @@ public class UserService {
     }
 
     public static UserService getInstance() {
-        if(INSTANCE == null) {
+        if (INSTANCE == null) {
             INSTANCE = new UserService();
         }
         return INSTANCE;
     }
 
-    public void save (GetUserRequest getUserRequest) throws ServiceException {
+    public void save(GetUserRequest getUserRequest) throws ServiceException {
         String hashPass = BCrypt.hashpw(getUserRequest.getPassword(), BCrypt.gensalt(12));
-        User user = new User(getUserRequest.getLogin(),hashPass);
+        User user = new User(getUserRequest.getLogin(), hashPass);
 
         try {
-           userRepository.save(user);
+            userRepository.save(user);
         } catch (RepositoryException e) {
             throw new ServiceException("User already exist");
         }
     }
 
     public User getUser(GetUserRequest getUserRequest) throws ServiceException {
-         User user;
+        User user;
         try {
             user = userRepository.findByUserName(getUserRequest.getLogin()).get();
         } catch (RepositoryException e) {
@@ -48,7 +48,7 @@ public class UserService {
         String password = getUserRequest.getPassword();
         String hashPass = user.getPassword();
 
-        if(!isPasswordCorrect(password, hashPass)) {
+        if (!isPasswordCorrect(password, hashPass)) {
             throw new ServiceException("Wrong password");
         }
 
@@ -74,7 +74,7 @@ public class UserService {
 
 
     private boolean isPasswordCorrect(String password, String hashPass) {
-        return BCrypt.checkpw(password,hashPass);
+        return BCrypt.checkpw(password, hashPass);
     }
 
 

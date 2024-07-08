@@ -17,7 +17,6 @@ public class AppContextListener implements ServletContextListener {
 
     SessionService sessionService = SessionService.getInstance();
 
-
     final Runnable sessionChecker = () -> {
 
         try {
