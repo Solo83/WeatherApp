@@ -25,7 +25,7 @@ import java.util.Set;
 @WebFilter("/*")
 public class LoginFilter implements Filter {
 
-    private static final Set<String> ALLOWED_PATHS = Set.of("/signin", "/signup", "/home", "/search","");
+    private static final Set<String> ALLOWED_PATHS = Set.of("/signin", "/signup", "/home", "");
     private static final String ERROR_MESSAGE_SIGN_IN = "Please SignIn";
     private static final String ERROR_MESSAGE_SESSION_EXPIRED = "Session expired, please SignIn";
     private static final SessionService sessionService = SessionService.getInstance();

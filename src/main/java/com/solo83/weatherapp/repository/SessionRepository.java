@@ -29,20 +29,14 @@ public class SessionRepository implements Repository<String, UserSession> {
 
     public Optional<UserSession> findByUserId(String userId) throws RepositoryException {
         Optional<UserSession> findedSession;
-        Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             try {
-                transaction = session.beginTransaction();
                 Query<UserSession> query = session.createQuery("from UserSession as session where session.user.id = :id", UserSession.class);
                 query.setParameter("id", userId);
                 findedSession = Optional.of(query.getSingleResult());
                 log.info("Finded session: {}", findedSession.get().getId());
             } catch (Exception e) {
-                log.error("Error while getting session by userId:", e);
-                if (transaction != null) {
-                    transaction.rollback();
-                    log.info("Transaction is {}", transaction.getStatus());
-                }
+                log.error("Error while getting session by userId");
                 throw new RepositoryException("Error while getting session by userId");
             }
             return findedSession;
@@ -52,20 +46,14 @@ public class SessionRepository implements Repository<String, UserSession> {
     @Override
     public Optional<UserSession> findById(String id) throws RepositoryException {
         Optional<UserSession> findedSession;
-        Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             try {
-                transaction = session.beginTransaction();
                 Query<UserSession> query = session.createQuery("from UserSession where id = :id", UserSession.class);
                 query.setParameter("id", id);
                 findedSession = Optional.of(query.getSingleResult());
                 log.info("Finded session: {}", findedSession.get().getId());
             } catch (Exception e) {
-                log.error("Error while getting session by Id:", e);
-                if (transaction != null) {
-                    transaction.rollback();
-                    log.info("Transaction is {}", transaction.getStatus());
-                }
+                log.error("Error while getting session by Id:");
                 throw new RepositoryException("Error while getting session by Id");
             }
             return findedSession;
@@ -74,20 +62,13 @@ public class SessionRepository implements Repository<String, UserSession> {
 
     @Override
     public List<UserSession> findAll() throws RepositoryException {
-        Transaction transaction = null;
         List<UserSession> userSessions;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
             Query<UserSession> query = session.createQuery("from UserSession ", UserSession.class);
             userSessions = query.getResultList();
             log.info("Finded userSessions {}", userSessions.size());
-            transaction.commit();
         } catch (Exception e) {
-            log.error("Error while getting userSessions:", e);
-            if (transaction != null) {
-                transaction.rollback();
-                log.info("Transaction is {}", transaction.getStatus());
-            }
+            log.error("Error while getting userSessions");
             throw new RepositoryException("Error while getting userSessions");
         }
         return userSessions;
@@ -103,12 +84,11 @@ public class SessionRepository implements Repository<String, UserSession> {
                 session.persist(userSession);
                 transaction.commit();
                 addedSession = Optional.of(userSession);
-                log.info("Added session: {}", addedSession.get());
+                log.info("Session added: {}", addedSession.get().getId());
             } catch (Exception e) {
-                log.error("Error while adding session:", e);
+                log.error("Error while adding session");
                 if (transaction != null) {
                     transaction.rollback();
-                    log.info("Transaction is {}", transaction.getStatus());
                 }
                 throw new RepositoryException("Error while adding session");
             }
@@ -118,20 +98,13 @@ public class SessionRepository implements Repository<String, UserSession> {
 
     @Override
     public boolean delete(String id) throws RepositoryException {
-        Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             try {
-                transaction = session.beginTransaction();
                 UserSession userSession = session.get(UserSession.class, id);
                 session.remove(userSession);
-                transaction.commit();
                 log.info("Session deleted: {}", userSession.getId());
             } catch (Exception e) {
-                log.error("Error while deleting session:", e);
-                if (transaction != null) {
-                    transaction.rollback();
-                    log.info("Transaction is {}", transaction.getStatus());
-                }
+                log.error("Error while deleting session");
                 throw new RepositoryException("Error updating session");
             }
             return true;
@@ -148,14 +121,13 @@ public class SessionRepository implements Repository<String, UserSession> {
                 session.merge(userSession);
                 transaction.commit();
                 updatedSession = Optional.of(userSession);
-                log.info("Session updated: {}", updatedSession.get().getId());
+                log.info("Expired session updated: {}", updatedSession.get().getId());
             } catch (Exception e) {
-                log.error("Error while updating session:", e);
+                log.error("Error while updating session");
                 if (transaction != null) {
                     transaction.rollback();
-                    log.info("Transaction is {}", transaction.getStatus());
                 }
-                throw new RepositoryException("Error updating session");
+                throw new RepositoryException("Error while updating session");
             }
             return updatedSession;
         }

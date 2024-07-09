@@ -54,11 +54,10 @@ public class SessionService {
                 log.info("Session is expired");
                 setSessionExpirationTime(currentSession);
                 sessionRepository.update(currentSession);
-                log.info("Session updated, expires at {}", currentSession.getExpiresAt());
+                log.info("New expiration time is {}", currentSession.getExpiresAt());
             }
 
             return session;
-
         } else {
             return Optional.of(createAndSave(user));
         }
@@ -89,13 +88,13 @@ public class SessionService {
     }
 
     private UserSession createAndSave(User user) throws RepositoryException {
-        UserSession newSession = create(user);
+        UserSession newSession = createNew(user);
         sessionRepository.save(newSession);
-        log.info("New session created and saved to DB");
+        log.info("New session created: {}", newSession.getId());
         return newSession;
     }
 
-    private UserSession create(User user) {
+    private UserSession createNew(User user) {
         String sessionId = UUID.randomUUID().toString();
         LocalDateTime expiresAt = LocalDateTime.now().plusSeconds(SESSION_LIFETIME_IN_SECONDS);
         return new UserSession(sessionId, user, expiresAt);

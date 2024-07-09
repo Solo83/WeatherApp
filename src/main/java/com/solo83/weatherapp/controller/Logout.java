@@ -10,10 +10,12 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
 
 import java.util.Optional;
 
+@Slf4j
 @WebServlet("/logout")
 public class Logout extends HttpServlet {
 
@@ -32,9 +34,12 @@ public class Logout extends HttpServlet {
                  cookieService.invalidateCookie(resp,cookie.get());
                  getServletContext().removeAttribute("user");
              } catch (RepositoryException e) {
-                 throw new RuntimeException(e);
+                 log.error(e.getMessage());
              }
         }
+
+        req.setAttribute("success", "User logged out");
+        log.info("User logged out");
         thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
     }
 }
