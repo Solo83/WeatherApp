@@ -7,7 +7,6 @@ import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import lombok.extern.slf4j.Slf4j;
 
-
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -23,8 +22,8 @@ public class AppContextListener implements ServletContextListener {
             for (UserSession session : sessionService.getAll()) {
                 if (!sessionService.isSessionValid(session.getExpiresAt())) {
                    String sessionId = session.getId();
-                   sessionService.remove(session.getId());
-                   log.info("Deleted expired session {}",sessionId);
+                    log.info("Expired session will be deleted");
+                    sessionService.remove(sessionId);
                 }
             }
         } catch (RepositoryException e) {

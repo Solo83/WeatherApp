@@ -25,6 +25,11 @@ public class SignIn extends HttpServlet {
 
 
     @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        thymeleafTemplateRenderer.renderTemplate(req, resp, "signin");
+    }
+
+    @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
 
         String username = req.getParameter("username");
@@ -32,7 +37,7 @@ public class SignIn extends HttpServlet {
 
         if (username.isEmpty() || password.isEmpty()) {
             req.setAttribute("error", "Enter username and password");
-            thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
+            thymeleafTemplateRenderer.renderTemplate(req, resp, "signin");
             return;
         }
 
@@ -47,7 +52,7 @@ public class SignIn extends HttpServlet {
 
         } catch (ServiceException | RepositoryException e) {
             req.setAttribute("error", e.getMessage());
-            thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
+            thymeleafTemplateRenderer.renderTemplate(req, resp, "signin");
             return;
         }
 

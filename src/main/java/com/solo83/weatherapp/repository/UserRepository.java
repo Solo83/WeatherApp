@@ -30,20 +30,14 @@ public class UserRepository implements Repository<Integer,User> {
     @Override
     public Optional<User> findById(Integer id) throws RepositoryException {
         Optional<User> findedUser;
-        Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             try {
-                transaction = session.beginTransaction();
                 Query<User> query = session.createQuery("from User where id = :id", User.class);
                 query.setParameter("id", id);
                 findedUser = Optional.of(query.getSingleResult());
-                log.info("Finded user: {}", findedUser.get().getLogin());
+                log.info("User found");
             } catch (Exception e) {
-                log.error("Error while getting user by Id:", e);
-                if (transaction != null) {
-                    transaction.rollback();
-                    log.info("Transaction is {}", transaction.getStatus());
-                }
+                log.error("Error", e);
                 throw new RepositoryException("Error while getting user");
             }
             return findedUser;
@@ -52,20 +46,14 @@ public class UserRepository implements Repository<Integer,User> {
 
     public Optional<User> findByUserName(String userName) throws RepositoryException {
         Optional<User> findedUser;
-        Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             try {
-                transaction = session.beginTransaction();
                 Query<User> query = session.createQuery("from User where login = :userName", User.class);
                 query.setParameter("userName", userName);
                 findedUser = Optional.of(query.getSingleResult());
-                log.info("Finded user: {}", findedUser.get().getLogin());
+                log.info("User found");
             } catch (Exception e) {
-                log.error("Error while getting user by name:", e);
-                if (transaction != null) {
-                    transaction.rollback();
-                    log.info("Transaction is {}", transaction.getStatus());
-                }
+                log.error("Error", e);
                 throw new RepositoryException("Error while getting user");
             }
             return findedUser;

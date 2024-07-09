@@ -6,8 +6,9 @@
 </head>
 <body>
 <div id="login">
-    <h2 class="text-center text-info pt-5">Welcome to the WeatherApp
-        <a th:if="${application.user}" th:text="${application.user.getLogin()}? ${application.user.getLogin()}:''"></a>
+    <h2 class="text-center text-info pt-5">Welcome
+        <a th:if="${application.user}" th:text="${application.user.getLogin()}? ${application.user.getLogin()}:''">        </a>
+        <a th:if="${application.user}" href="logout" class="btn btn-info btn-md" role="button">Logout</a>
     </h2>
     <br/>
     <div class="container">
@@ -21,43 +22,9 @@
                             <input type="submit" name="submit" class="btn btn-info btn-md" value="Search">
                         </div>
                     </div>
+                    <a class="font-weight-light text-danger" th:text="${error}"></a>
+                    <a class="font-weight-light text-success" th:text="${success}"></a>
                 </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="container">
-        <div id="login-row" class="row justify-content-center align-items-center">
-            <div id="login-column" class="col-md-6 ">
-                <div id="login-box" class="card p-3 bg-light">
-                    <form id="login-form" class="form" action="signin" method="post">
-                        <h3 class="text-center text-info">Sign In</h3>
-                        <div class="form-group">
-                            <label for="username" class="text-info">Username:</label><br>
-                            <input type="text" id="username" name="username" class="form-control">
-                        </div>
-                        <div class="input-group">
-                            <label for="password" class="text-info">Password:</label><br>
-                            <div class="input-group " id="show_hide_password">
-                                <input type="password" id="password" name="password" class="form-control rounded-right">
-                                <div class="input-group-addon">
-                                    <i class="bi bi-eye-slash" id="togglePassword"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="remember-me" class="text-info"><span>Remember me</span> <span><input
-                                    id="remember-me" name="remember-me" type="checkbox"></span></label><br>
-                            <input type="submit" name="submit" class="btn btn-info btn-md" value="Submit">
-                        </div>
-                        <div id="register-link" class="text-right">
-                            <a th:href="@{/signup}" class="text-info">Sign Up</a>
-                        </div>
-                        <br/>
-                        <br/>
-                        <a class="font-weight-light text-danger" th:text="${error}"></a>
-                    </form>
-                </div>
             </div>
         </div>
     </div>

@@ -38,6 +38,7 @@ public class SignUp extends HttpServlet {
             String password = req.getParameter("password");
 
             userService.save(new GetUserRequest(username,password));
+            req.setAttribute("success", "User registered successfully");
 
         } catch (ValidatorException | ServiceException e) {
             req.setAttribute("error", e.getMessage());
@@ -46,6 +47,5 @@ public class SignUp extends HttpServlet {
         }
 
         thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
-
     }
 }

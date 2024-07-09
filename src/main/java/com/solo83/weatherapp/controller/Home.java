@@ -15,7 +15,6 @@ public class Home extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)  {
-
         thymeleafTemplateRenderer.renderTemplate(req,resp,"home");
     }
 }
