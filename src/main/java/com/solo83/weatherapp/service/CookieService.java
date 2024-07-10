@@ -31,8 +31,8 @@ public class CookieService {
         int maxAgeInSeconds = -1;
         Cookie sessionCookie = new Cookie(SESSION_COOKIE, sessionId);
         sessionCookie.setMaxAge(maxAgeInSeconds);
-        sessionCookie.setHttpOnly(true);
-        sessionCookie.setSecure(true);
+        //sessionCookie.setHttpOnly(true);
+        //sessionCookie.setSecure(true);
         resp.addCookie(sessionCookie);
 
         log.info("Cookie set to session {}, expires at {}", sessionCookie.getValue(), sessionCookie.getMaxAge());

@@ -38,7 +38,8 @@ public final class HibernateUtil {
                     .addAnnotatedClass(User.class)
                     .addAnnotatedClass(UserSession.class)
                     .addAnnotatedClass(Location.class)
-                    .addProperties(properties).buildSessionFactory();
+                    .addProperties(properties)
+                    .buildSessionFactory();
         }
         return sessionFactory;
     }

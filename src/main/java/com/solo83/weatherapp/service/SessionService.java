@@ -35,7 +35,7 @@ public class SessionService {
         return getUserSession(user).orElseThrow(() -> new ServiceException("Failed to get or create session"));
     }
 
-    private Optional<UserSession> getUserSession(User user) throws RepositoryException {
+    public Optional<UserSession> getUserSession(User user) throws RepositoryException {
         String userId = user.getId().toString();
         Optional<UserSession> session;
 
