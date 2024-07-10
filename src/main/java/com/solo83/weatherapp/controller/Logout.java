@@ -32,7 +32,7 @@ public class Logout extends HttpServlet {
              try {
                  sessionService.remove(cookie.get().getValue());
                  cookieService.invalidateCookie(resp,cookie.get());
-                 getServletContext().removeAttribute("user");
+                 getServletContext().removeAttribute("locations");
              } catch (RepositoryException e) {
                  log.error(e.getMessage());
              }

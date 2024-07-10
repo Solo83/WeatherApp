@@ -25,7 +25,7 @@ import java.util.Set;
 @WebFilter("/*")
 public class LoginFilter implements Filter {
 
-    private static final Set<String> ALLOWED_PATHS = Set.of("/signin", "/signup", "/home", "");
+    private static final Set<String> RESTRICTED_PATHS = Set.of("/main");
     private static final String ERROR_MESSAGE_SIGN_IN = "Please SignIn";
     private static final String ERROR_MESSAGE_SESSION_EXPIRED = "Session expired, please SignIn";
     private static final SessionService sessionService = SessionService.getInstance();
@@ -38,9 +38,9 @@ public class LoginFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
 
         String path = extractPath(req);
-        boolean allowedPath = ALLOWED_PATHS.contains(path);
+        boolean restrictedPath = RESTRICTED_PATHS.contains(path);
 
-        if (allowedPath) {
+        if (!restrictedPath) {
             chain.doFilter(request, response);
             return;
         }
@@ -98,11 +98,11 @@ public class LoginFilter implements Filter {
     }
 
     private void setUserAttribute(HttpServletRequest req, User user ) {
-        req.getServletContext().setAttribute("user", user);
+        req.setAttribute("user", user);
     }
 
     private void clearUserAttribute(HttpServletRequest req) {
-        req.getServletContext().removeAttribute("user");
+        req.removeAttribute("user");
     }
 
     private String extractPath(HttpServletRequest req) {

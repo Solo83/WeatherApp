@@ -98,13 +98,20 @@ public class SessionRepository implements Repository<String, UserSession> {
 
     @Override
     public boolean delete(String id) throws RepositoryException {
+        Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             try {
+                transaction = session.beginTransaction();
                 UserSession userSession = session.get(UserSession.class, id);
                 session.remove(userSession);
+                transaction.commit();
                 log.info("Session deleted: {}", userSession.getId());
             } catch (Exception e) {
-                log.error("Error while deleting session");
+                log.error("Error while deleting session {}",e.getMessage());
+                if (transaction != null) {
+                    transaction.rollback();
+                    log.info("Transaction is {}", transaction.getStatus());
+                }
                 throw new RepositoryException("Error updating session");
             }
             return true;
@@ -121,15 +128,17 @@ public class SessionRepository implements Repository<String, UserSession> {
                 session.merge(userSession);
                 transaction.commit();
                 updatedSession = Optional.of(userSession);
-                log.info("Expired session updated: {}", updatedSession.get().getId());
+                log.info("Updated session: {}", updatedSession.get());
             } catch (Exception e) {
-                log.error("Error while updating session");
+                log.error("Error while updating session:", e);
                 if (transaction != null) {
                     transaction.rollback();
+                    log.info("Transaction is {}", transaction.getStatus());
                 }
-                throw new RepositoryException("Error while updating session");
+                throw new RepositoryException("Error updating session");
             }
             return updatedSession;
         }
     }
-}
+    }
+

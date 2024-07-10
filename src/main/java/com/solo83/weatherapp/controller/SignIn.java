@@ -9,11 +9,14 @@ import com.solo83.weatherapp.service.UserService;
 import com.solo83.weatherapp.utils.exception.RepositoryException;
 import com.solo83.weatherapp.utils.exception.ServiceException;
 import com.solo83.weatherapp.utils.renderer.ThymeleafTemplateRenderer;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.IOException;
 
 @Slf4j
 @WebServlet("/signin")
@@ -30,7 +33,7 @@ public class SignIn extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         String username = req.getParameter("username");
         String password = req.getParameter("password");
@@ -48,7 +51,7 @@ public class SignIn extends HttpServlet {
             user = userService.getUser(new GetUserRequest(username, password));
             session = sessionService.get(user);
             cookieService.setCookie(resp,session.getId());
-            getServletContext().setAttribute("user", user);
+            req.setAttribute("user", user);
 
         } catch (ServiceException | RepositoryException e) {
             req.setAttribute("error", e.getMessage());
@@ -56,6 +59,7 @@ public class SignIn extends HttpServlet {
             return;
         }
 
-        thymeleafTemplateRenderer.renderTemplate(req,resp,"main");
+        req.setAttribute("user", user);
+        req.getRequestDispatcher("main").forward(req, resp);
     }
 }
