@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 public class InputValidator {
 
     private final String USERNAME_PATTERN = "^[a-zA-Z0-9]*$";
-    private final String PASSWORD_PATTERN = "^[a-zA-Z0-9]{4}$";
+    private final String PASSWORD_PATTERN = "^[a-zA-Z0-9]*$";
 
     private final Pattern passwordPattern = Pattern.compile(PASSWORD_PATTERN);
     private final Pattern usernamePattern = Pattern.compile(USERNAME_PATTERN);
@@ -27,7 +27,7 @@ public class InputValidator {
 
         if (!passwordPattern.matcher(passwordValue).find()) {
             log.error("Password should contain 4 letters or numbers, without spaces");
-            throw new ValidatorException("Password should contain 4 letters or numbers, without spaces");
+            throw new ValidatorException("Password must contain only numbers and letters");
         }
 
         if (confirmationValue  == null || confirmationValue.isEmpty()) {

@@ -6,6 +6,7 @@ import com.solo83.weatherapp.utils.exception.RepositoryException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,8 +28,36 @@ public class UserRepository implements Repository<Integer,User> {
 
 
     @Override
-    public Optional<User> findById(Integer id) {
-        return Optional.empty();
+    public Optional<User> findById(Integer id) throws RepositoryException {
+        Optional<User> findedUser;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            try {
+                Query<User> query = session.createQuery("from User where id = :id", User.class);
+                query.setParameter("id", id);
+                findedUser = Optional.of(query.getSingleResult());
+                log.info("User found");
+            } catch (Exception e) {
+                log.error("Error", e);
+                throw new RepositoryException("Error while getting user");
+            }
+            return findedUser;
+        }
+    }
+
+    public Optional<User> findByUserName(String userName) throws RepositoryException {
+        Optional<User> findedUser;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            try {
+                Query<User> query = session.createQuery("from User where login = :userName", User.class);
+                query.setParameter("userName", userName);
+                findedUser = Optional.of(query.getSingleResult());
+                log.info("User found");
+            } catch (Exception e) {
+                log.error("Error", e);
+                throw new RepositoryException("Error while getting user");
+            }
+            return findedUser;
+        }
     }
 
     @Override

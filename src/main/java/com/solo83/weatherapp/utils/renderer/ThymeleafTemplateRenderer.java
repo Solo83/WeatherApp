@@ -48,6 +48,7 @@ public class ThymeleafTemplateRenderer {
         final WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(application);
         // HTML is the default mode, but we will set it anyway for better understanding of code
         templateResolver.setTemplateMode(TemplateMode.HTML);
+        templateResolver.setCharacterEncoding("UTF-8");
         // This will convert "home" to "/WEB-INF/templates/home.html"
         templateResolver.setPrefix("/WEB-INF/templates/");
         templateResolver.setSuffix(".html");
