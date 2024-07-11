@@ -1,7 +1,5 @@
 package com.solo83.weatherapp.service;
 
-import com.solo83.weatherapp.utils.exception.RepositoryException;
-import com.solo83.weatherapp.utils.exception.ServiceException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,17 +24,14 @@ public class CookieService {
             return INSTANCE;
         }
 
-    public void setCookie(HttpServletResponse resp, String sessionId) throws ServiceException, RepositoryException {
+    public void setCookie(HttpServletResponse resp, String sessionId) {
 
         int maxAgeInSeconds = -1;
         Cookie sessionCookie = new Cookie(SESSION_COOKIE, sessionId);
         sessionCookie.setMaxAge(maxAgeInSeconds);
-        //sessionCookie.setHttpOnly(true);
-        //sessionCookie.setSecure(true);
         resp.addCookie(sessionCookie);
 
         log.info("Cookie set to session {}, expires at {}", sessionCookie.getValue(), sessionCookie.getMaxAge());
-
     }
 
     public Optional<Cookie> getCookie(HttpServletRequest req) {
@@ -46,10 +41,11 @@ public class CookieService {
                         .findFirst());
     }
 
-    public void invalidateCookie(HttpServletResponse resp, Cookie cookie) {
+    public void invalidateCookie(HttpServletRequest req,HttpServletResponse resp) {
+        Cookie cookie = getCookie(req).get();
         cookie.setMaxAge(0);
         resp.addCookie(cookie);
-        log.info("Cookie invalidated");
+        log.info("Cookie invalidated {}", cookie.getValue());
     }
 
 }

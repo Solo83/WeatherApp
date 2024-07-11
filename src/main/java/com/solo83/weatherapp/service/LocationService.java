@@ -32,7 +32,7 @@ public class LocationService {
             return INSTANCE;
         }
 
-    public void addlocation(GetLocationRequest getLocationRequest, User user) {
+    public void addLocation(GetLocationRequest getLocationRequest, User user) {
             Location location = new Location();
             location.setLatitude(getLocationRequest.getLatitude());
             location.setLongitude(getLocationRequest.getLongitude());

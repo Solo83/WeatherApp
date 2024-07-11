@@ -31,11 +31,24 @@ public class UserService {
         return INSTANCE;
     }
 
-    public User getUserFromCookie(HttpServletRequest req) throws ServiceException {
-        Optional<Cookie> cookie = cookieService.getCookie(req);
-        String sessionId = cookie.get().getValue();
-        Optional<UserSession> session = sessionService.getById(sessionId);
-        return session.get().getUser();
+    public User getUserFromRequest(HttpServletRequest req) throws ServiceException {
+        User user = (User) req.getAttribute("user");
+
+        if (user == null) {
+            Optional<Cookie> cookie = cookieService.getCookie(req);
+            if (cookie.isEmpty()) {
+                throw new ServiceException("Cookie not found");
+            }
+
+            String sessionId = cookie.get().getValue();
+            Optional<UserSession> session = sessionService.getById(sessionId);
+            if (session.isEmpty()) {
+                throw new ServiceException("Session not found");
+            }
+            user = session.get().getUser();
+        }
+
+        return user;
     }
 
 
@@ -46,7 +59,7 @@ public class UserService {
         try {
            userOptional = userRepository.save(user);
         } catch (RepositoryException e) {
-            throw new ServiceException("User already exist");
+            throw new ServiceException("User cant be saved");
         }
 
         return userOptional.get();
@@ -73,21 +86,6 @@ public class UserService {
         return user;
 
     }
-
-    Optional<User> getUser(Integer id) throws ServiceException {
-
-        Optional<User> user;
-
-        try {
-            user = userRepository.findById(id);
-        } catch (RepositoryException e) {
-            throw new ServiceException("User does not exist");
-        }
-
-        return user;
-
-    }
-
 
     private boolean isPasswordCorrect(String password, String hashPass) {
         return BCrypt.checkpw(password, hashPass);

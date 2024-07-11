@@ -5,6 +5,9 @@ import com.solo83.weatherapp.entity.UserSession;
 import com.solo83.weatherapp.repository.SessionRepository;
 import com.solo83.weatherapp.utils.exception.RepositoryException;
 import com.solo83.weatherapp.utils.exception.ServiceException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
@@ -17,8 +20,8 @@ import java.util.UUID;
 public class SessionService {
 
     private final SessionRepository sessionRepository = SessionRepository.getInstance();
-    private static final int SESSION_LIFETIME_IN_SECONDS = 5*60;
-
+    private static final int SESSION_LIFETIME_IN_SECONDS = 10*60;
+    private final CookieService cookieService = CookieService.getInstance();
     private static SessionService INSTANCE;
 
     private SessionService() {}
@@ -30,41 +33,39 @@ public class SessionService {
         return INSTANCE;
     }
 
-
-    public UserSession get (User user) throws RepositoryException, ServiceException {
-        return getUserSession(user).orElseThrow(() -> new ServiceException("Failed to get or create session"));
-    }
-
-    public Optional<UserSession> getUserSession(User user) throws RepositoryException {
+    public Optional<UserSession> getSession(User user, HttpServletResponse resp) throws RepositoryException, ServiceException {
         String userId = user.getId().toString();
         Optional<UserSession> session;
-
 
         try {
             session = sessionRepository.findByUserId(userId);
         } catch (RepositoryException e) {
-            return Optional.of(createAndSave(user));
+            session = Optional.of(create(user));
+            sessionRepository.save(session.get());
         }
 
-        if (session.isPresent()) {
-            UserSession currentSession = session.get();
-            log.info("Session {} exists in DB, expires at {}", currentSession.getId(), currentSession.getExpiresAt());
+        UserSession userSession = session.get();
 
-            if (!isSessionValid(currentSession.getExpiresAt())) {
-                log.info("Session is expired");
-                setSessionExpirationTime(currentSession);
-                sessionRepository.update(currentSession);
-                log.info("New expiration time is {}", currentSession.getExpiresAt());
-            }
-
-            return session;
-        } else {
-            return Optional.of(createAndSave(user));
+        if (!isSessionValid(userSession.getExpiresAt())) {
+            setSessionExpirationTime(userSession);
+            sessionRepository.update(userSession);
         }
+
+        cookieService.setCookie(resp,userSession.getId());
+
+        return session;
     }
 
     public void remove(String sessionId) throws RepositoryException {
         sessionRepository.delete(sessionId);
+    }
+
+    public void invalidate(HttpServletRequest req, HttpServletResponse resp) throws RepositoryException {
+        Optional<Cookie> cookie = cookieService.getCookie(req);
+        String sessionId = cookie.get().getValue();
+        cookieService.invalidateCookie(req,resp);
+        remove(sessionId);
+        log.info("Session invalidated {}", sessionId);
     }
 
     public List<UserSession> getAll() throws RepositoryException {
@@ -87,16 +88,10 @@ public class SessionService {
         session.setExpiresAt(LocalDateTime.now().plusSeconds(SESSION_LIFETIME_IN_SECONDS));
     }
 
-    private UserSession createAndSave(User user) throws RepositoryException {
-        UserSession newSession = createNew(user);
-        sessionRepository.save(newSession);
-        log.info("New session created: {}", newSession.getId());
-        return newSession;
-    }
-
-    private UserSession createNew(User user) {
+    private UserSession create(User user) {
         String sessionId = UUID.randomUUID().toString();
         LocalDateTime expiresAt = LocalDateTime.now().plusSeconds(SESSION_LIFETIME_IN_SECONDS);
+        log.info("New session created: {}", sessionId);
         return new UserSession(sessionId, user, expiresAt);
     }
 
