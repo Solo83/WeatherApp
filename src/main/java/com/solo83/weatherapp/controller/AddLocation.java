@@ -5,7 +5,6 @@ import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.service.LocationService;
 import com.solo83.weatherapp.service.UserService;
 import com.solo83.weatherapp.utils.exception.ServiceException;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,29 +15,28 @@ import java.io.IOException;
 import java.math.BigDecimal;
 
 @Slf4j
-@WebServlet("/addlocation")
+@WebServlet("/add")
 public class AddLocation extends HttpServlet {
     LocationService locationService = LocationService.getInstance();
     UserService userService = UserService.getInstance();
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
         String name = req.getParameter("name");
         BigDecimal latitude = new BigDecimal(req.getParameter("latitude"));
         BigDecimal longitude = new BigDecimal(req.getParameter("longitude"));
         GetLocationRequest location = new GetLocationRequest(name,latitude,longitude);
 
-        User user;
+        User user = null;
         try {
-            user = userService.getUserFromCookie(req);
+            user = userService.getUserFromRequest(req);
         } catch (ServiceException e) {
-            throw new RuntimeException(e);
+            log.error("Error while getting user from request", e);
         }
 
-        locationService.addlocation(location,user);
+        locationService.addLocation(location,user);
 
-        req.setAttribute("user", user);
-        req.getRequestDispatcher("main").forward(req, resp);
+        resp.sendRedirect("home");
     }
 }

@@ -2,14 +2,11 @@ package com.solo83.weatherapp.controller;
 
 import com.solo83.weatherapp.dto.GetUserRequest;
 import com.solo83.weatherapp.entity.User;
-import com.solo83.weatherapp.entity.UserSession;
-import com.solo83.weatherapp.service.CookieService;
 import com.solo83.weatherapp.service.SessionService;
 import com.solo83.weatherapp.service.UserService;
 import com.solo83.weatherapp.utils.exception.RepositoryException;
 import com.solo83.weatherapp.utils.exception.ServiceException;
 import com.solo83.weatherapp.utils.renderer.ThymeleafTemplateRenderer;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,35 +20,25 @@ import java.io.IOException;
 public class SignIn extends HttpServlet {
     private final UserService userService = UserService.getInstance();
     private final SessionService sessionService = SessionService.getInstance();
-    private final CookieService cookieService = CookieService.getInstance();
     private final ThymeleafTemplateRenderer thymeleafTemplateRenderer = ThymeleafTemplateRenderer.getInstance();
 
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        thymeleafTemplateRenderer.renderTemplate(req, resp, "signin");
+        thymeleafTemplateRenderer.renderTemplate(req,resp,"signin");
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-        String username = req.getParameter("username");
-        String password = req.getParameter("password");
-
-        if (username.isEmpty() || password.isEmpty()) {
-            req.setAttribute("error", "Enter username and password");
-            thymeleafTemplateRenderer.renderTemplate(req, resp, "signin");
-            return;
-        }
+       String username = req.getParameter("username");
+       String password = req.getParameter("password");
 
        User user;
-       UserSession session;
 
         try {
             user = userService.getUser(new GetUserRequest(username, password));
-            session = sessionService.get(user);
-            cookieService.setCookie(resp,session.getId());
-            req.setAttribute("user", user);
+            sessionService.getSession(user,resp).get();
 
         } catch (ServiceException | RepositoryException e) {
             req.setAttribute("error", e.getMessage());
@@ -59,7 +46,6 @@ public class SignIn extends HttpServlet {
             return;
         }
 
-        req.setAttribute("user", user);
-        req.getRequestDispatcher("main").forward(req, resp);
+        resp.sendRedirect("home");
     }
 }

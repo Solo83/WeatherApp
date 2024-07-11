@@ -19,38 +19,28 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.Optional;
-import java.util.Set;
 
 @Slf4j
 @WebFilter("/*")
-public class LoginFilter implements Filter {
+public class AuthorisationFilter implements Filter {
 
-    private static final Set<String> RESTRICTED_PATHS = Set.of("/main");
-    private static final String ERROR_MESSAGE_SIGN_IN = "Please SignIn";
-    private static final String ERROR_MESSAGE_SESSION_EXPIRED = "Session expired, please SignIn";
+    private static final String ERROR_MESSAGE_NOT_FOUND = "Session not found, please SignIn";
+    private static final String ERROR_MESSAGE_SESSION_EXPIRED = "Session is expired, please SignIn";
     private static final SessionService sessionService = SessionService.getInstance();
     private final CookieService cookieService = CookieService.getInstance();
     private final ThymeleafTemplateRenderer thymeleafTemplateRenderer = ThymeleafTemplateRenderer.getInstance();
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletResponse resp = (HttpServletResponse) response;
         HttpServletRequest req = (HttpServletRequest) request;
-
-        String path = extractPath(req);
-        boolean restrictedPath = RESTRICTED_PATHS.contains(path);
-
-        if (!restrictedPath) {
-            chain.doFilter(request, response);
-            return;
-        }
+        HttpServletResponse resp = (HttpServletResponse) response;
 
         Optional<Cookie> cookie = cookieService.getCookie(req);
 
         if (cookie.isPresent()) {
             processSessionCookie(req, resp, chain, cookie.get());
         } else {
-            redirectHomeWithError(req, resp, ERROR_MESSAGE_SIGN_IN);
+            chain.doFilter(req, resp);
         }
     }
 
@@ -63,10 +53,10 @@ public class LoginFilter implements Filter {
                     if (sessionService.isSessionValid(userSession.getExpiresAt())) {
                         handleValidSession(req, resp, chain, userSession);
                     } else {
-                        invalidateSession(req, resp, cookie, sessionId);
+                        invalidateSession(req, resp);
                     }
                 },
-                () -> handleInvalidSession(req, resp, cookie)
+                () -> handleInvalidatedSession(req, resp)
         );
     }
 
@@ -80,21 +70,20 @@ public class LoginFilter implements Filter {
         }
     }
 
-    private void invalidateSession(HttpServletRequest req, HttpServletResponse resp, Cookie cookie, String sessionId) {
+    private void invalidateSession(HttpServletRequest req, HttpServletResponse resp) {
         try {
-            sessionService.remove(sessionId);
-            cookieService.invalidateCookie(resp, cookie);
+            sessionService.invalidate(req, resp);
             clearUserAttribute(req);
-            redirectHomeWithError(req, resp, LoginFilter.ERROR_MESSAGE_SESSION_EXPIRED);
+            redirectHomeWithError(req, resp, AuthorisationFilter.ERROR_MESSAGE_SESSION_EXPIRED);
         } catch (RepositoryException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void handleInvalidSession(HttpServletRequest req, HttpServletResponse resp, Cookie cookie) {
+    private void handleInvalidatedSession(HttpServletRequest req, HttpServletResponse resp) {
         clearUserAttribute(req);
-        cookieService.invalidateCookie(resp, cookie);
-        redirectHomeWithError(req, resp, ERROR_MESSAGE_SIGN_IN);
+        cookieService.invalidateCookie(req,resp);
+        redirectHomeWithError(req, resp, ERROR_MESSAGE_NOT_FOUND);
     }
 
     private void setUserAttribute(HttpServletRequest req, User user ) {
@@ -103,10 +92,6 @@ public class LoginFilter implements Filter {
 
     private void clearUserAttribute(HttpServletRequest req) {
         req.removeAttribute("user");
-    }
-
-    private String extractPath(HttpServletRequest req) {
-        return req.getRequestURI().substring(req.getContextPath().length()).replaceAll("[/]+$", "");
     }
 
     private void redirectHomeWithError(HttpServletRequest req, HttpServletResponse resp, String errorMessage) {
