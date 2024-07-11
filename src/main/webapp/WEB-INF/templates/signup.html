@@ -7,16 +7,15 @@
 <body>
 <div id="login">
     <h2 class="text-center text-info pt-5">Sign Up</h2>
-    <br/>
     <div class="container">
         <div id="login-row" class="row justify-content-center align-items-center">
             <div id="login-column" class="card p-3 bg-light">
-                <form class="form" action='' method="POST">
+                <form class="form" action='signup' method="POST">
                     <div class="control-group">
                         <!-- Username -->
                         <label class="text-info" for="username">Username:</label>
                         <div class="controls">
-                            <input type="text" id="username" name="username" placeholder="" class="form-control">
+                            <input type="text" id="username" name="username" placeholder="" class="form-control" required>
                             <p class="font-weight-light text-muted">Username can contain any letters or numbers, without spaces</p>
                         </div>
                     </div>
@@ -24,27 +23,30 @@
                         <!-- Password-->
                         <label class="text-info" for="password">Password:</label>
                         <div class="controls">
-                            <input type="password" id="password" name="password" placeholder="" class="form-control">
-                            <p class="font-weight-light text-muted">Password should contain 4 letters or numbers, without spaces</p>
+                            <input type="password" id="password" name="password" placeholder="" class="form-control" required>
+                            <p class="font-weight-light text-muted">Password can contain any letters or numbers, without spaces</p>
                         </div>
                     </div>
                     <div class="control-group">
                         <!-- Password confirm-->
                         <label class="text-info" for="password_confirm">Password (Confirm):</label>
                         <div class="controls">
-                            <input type="password" id="password_confirm" name="password_confirm" class="form-control">
+                            <input type="password" id="password_confirm" name="password_confirm" class="form-control" required>
                             <p class="font-weight-light text-muted">Please confirm password</p>
                         </div>
                     </div>
                     <!-- Button -->
                     <div class="row">
                         <div class="col-4">
-                        <input type="submit" name="submit" class="btn btn-info btn-md" value="Register">
+                        <input type="submit" name="submit" class="w-100 btn btn-info btn-md" value="Register">
                         </div>
-                        <div class="col-8 text-center">
-                            <a class="text-danger" th:text="${error}"></a>
+                        <div class="col-4 text-center">
+                        </div>
+                        <div class="col-4">
+                            <a href="home" class="w-100 btn btn-info btn-md" role="button">Back</a>
                         </div>
                     </div>
+                    <a class="font-weight-light text-danger" th:text="${error}"></a>
                 </form>
             </div>
         </div>

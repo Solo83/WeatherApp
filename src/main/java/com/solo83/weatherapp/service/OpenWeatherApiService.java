@@ -13,6 +13,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Slf4j
@@ -63,6 +64,26 @@ public final class OpenWeatherApiService {
             throw new ServiceException("Error while getting locations");
         }
         return locations;
+    }
+
+    public Optional<GetLocationRequest> updateLocationData(GetLocationRequest getLocationRequest) throws ServiceException {
+        Optional<GetLocationRequest> location;
+        String latitude = getLocationRequest.getLatitude().toString();
+        String longitude = getLocationRequest.getLongitude().toString();
+        try {
+            String dataJson = currentWeatherDataApiRequest(latitude, longitude);
+            log.info("Data api response: {}", dataJson);
+            JsonNode dataNode = objectMapper.readTree(dataJson);
+            JsonNode mainNode = dataNode.get("main");
+            JsonNode sysNode = dataNode.get("sys");
+            String temp = mainNode.get("temp").asText();
+            getLocationRequest.setCountry(sysNode.get("country").asText());
+            getLocationRequest.setTemperature(temp);
+            location = Optional.of(getLocationRequest);
+        } catch (Exception e) {
+            throw new ServiceException("Error while updating temperature");
+        }
+        return location;
     }
 
     private String sendApiRequest(URI uri) throws Exception {
