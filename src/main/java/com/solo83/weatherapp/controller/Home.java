@@ -5,6 +5,7 @@ import com.solo83.weatherapp.entity.Location;
 import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.service.LocationService;
 import com.solo83.weatherapp.service.UserService;
+import com.solo83.weatherapp.utils.exception.RepositoryException;
 import com.solo83.weatherapp.utils.exception.ServiceException;
 import com.solo83.weatherapp.utils.renderer.ThymeleafTemplateRenderer;
 import jakarta.servlet.annotation.WebServlet;
@@ -37,7 +38,7 @@ public class Home extends HttpServlet {
          List<Location> userLocations = List.of();
          try {
              userLocations = locationService.getLocations(user.getId());
-         } catch (ServiceException ignored) {
+         } catch (RepositoryException e) {
              req.setAttribute("error", "Error while retrieving user locations");
              thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
          }

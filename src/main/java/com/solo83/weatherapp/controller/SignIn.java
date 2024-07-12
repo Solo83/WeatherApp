@@ -38,7 +38,7 @@ public class SignIn extends HttpServlet {
 
         try {
             user = userService.getUser(new GetUserRequest(username, password));
-            sessionService.getSession(user,resp).get();
+            sessionService.get(user,resp).get();
 
         } catch (ServiceException | RepositoryException e) {
             req.setAttribute("error", e.getMessage());

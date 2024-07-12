@@ -10,8 +10,6 @@ import org.hibernate.cfg.Configuration;
 
 
 import java.io.FileInputStream;
-import java.net.URI;
-import java.util.Objects;
 import java.util.Properties;
 
 
@@ -23,13 +21,9 @@ public final class HibernateUtil {
 
     public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
-
             Properties properties = new Properties();
-
             try {
-                ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-                URI uri = Objects.requireNonNull(classloader.getResource("hibernate.properties")).toURI();
-                properties.load(new FileInputStream(String.valueOf(uri)));
+                properties.load(new FileInputStream("hibernate.properties"));
             } catch (Exception e) {
                 log.error("Cannot load properties file", e);
             }

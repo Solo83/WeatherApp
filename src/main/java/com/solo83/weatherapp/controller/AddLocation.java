@@ -5,6 +5,7 @@ import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.service.LocationService;
 import com.solo83.weatherapp.service.UserService;
 import com.solo83.weatherapp.utils.exception.ServiceException;
+import com.solo83.weatherapp.utils.renderer.ThymeleafTemplateRenderer;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +20,7 @@ import java.math.BigDecimal;
 public class AddLocation extends HttpServlet {
     LocationService locationService = LocationService.getInstance();
     UserService userService = UserService.getInstance();
+    ThymeleafTemplateRenderer thymeleafTemplateRenderer = ThymeleafTemplateRenderer.getInstance();
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -32,7 +34,8 @@ public class AddLocation extends HttpServlet {
         try {
             user = userService.getUserFromRequest(req);
         } catch (ServiceException e) {
-            log.error("Error while getting user from request", e);
+            req.setAttribute("error", e.getMessage());
+            thymeleafTemplateRenderer.renderTemplate(req,resp,"home");
         }
 
         locationService.addLocation(location,user);
