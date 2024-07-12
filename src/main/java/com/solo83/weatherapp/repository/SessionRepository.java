@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-public class SessionRepository implements Repository<String, UserSession> {
+public class SessionRepository {
 
     private static SessionRepository INSTANCE;
 
@@ -43,7 +43,6 @@ public class SessionRepository implements Repository<String, UserSession> {
         }
     }
 
-    @Override
     public Optional<UserSession> findById(String id) throws RepositoryException {
         Optional<UserSession> findedSession;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -60,7 +59,6 @@ public class SessionRepository implements Repository<String, UserSession> {
         }
     }
 
-    @Override
     public List<UserSession> findAll() throws RepositoryException {
         List<UserSession> userSessions;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -74,8 +72,7 @@ public class SessionRepository implements Repository<String, UserSession> {
         return userSessions;
     }
 
-    @Override
-    public Optional<UserSession> save(UserSession userSession) throws RepositoryException {
+    public void save(UserSession userSession) throws RepositoryException {
         Optional<UserSession> addedSession;
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -92,12 +89,10 @@ public class SessionRepository implements Repository<String, UserSession> {
                 }
                 throw new RepositoryException("Error while adding session");
             }
-            return addedSession;
         }
     }
 
-    @Override
-    public boolean delete(String id) throws RepositoryException {
+    public void delete(String id) throws RepositoryException {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             try {
@@ -114,12 +109,10 @@ public class SessionRepository implements Repository<String, UserSession> {
                 }
                 throw new RepositoryException("Error updating session");
             }
-            return true;
         }
     }
 
-    @Override
-    public Optional<UserSession> update(UserSession userSession) throws RepositoryException {
+    public void update(UserSession userSession) throws RepositoryException {
         Optional<UserSession> updatedSession;
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -137,7 +130,6 @@ public class SessionRepository implements Repository<String, UserSession> {
                 }
                 throw new RepositoryException("Error updating session");
             }
-            return updatedSession;
         }
     }
     }

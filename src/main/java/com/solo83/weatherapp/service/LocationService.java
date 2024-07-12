@@ -46,11 +46,11 @@ public class LocationService {
         }
     }
 
-    public List<Location> getLocations(Integer userId) throws ServiceException {
+    public List<Location> getLocations(Integer userId) throws RepositoryException {
         try {
             return locationRepository.findByUserID(userId);
         } catch (RepositoryException e) {
-            throw new ServiceException(e.getMessage());
+            throw new RepositoryException("Error while getting location");
         }
     }
 

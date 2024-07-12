@@ -4,7 +4,6 @@ import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.entity.UserSession;
 import com.solo83.weatherapp.repository.SessionRepository;
 import com.solo83.weatherapp.utils.exception.RepositoryException;
-import com.solo83.weatherapp.utils.exception.ServiceException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,7 +32,7 @@ public class SessionService {
         return INSTANCE;
     }
 
-    public Optional<UserSession> getSession(User user, HttpServletResponse resp) throws RepositoryException, ServiceException {
+    public Optional<UserSession> get(User user, HttpServletResponse resp) throws RepositoryException {
         String userId = user.getId().toString();
         Optional<UserSession> session;
 
@@ -51,7 +50,7 @@ public class SessionService {
             sessionRepository.update(userSession);
         }
 
-        cookieService.setCookie(resp,userSession.getId());
+        cookieService.set(resp,userSession.getId());
 
         return session;
     }
@@ -60,11 +59,15 @@ public class SessionService {
         sessionRepository.delete(sessionId);
     }
 
-    public void invalidate(HttpServletRequest req, HttpServletResponse resp) throws RepositoryException {
-        Optional<Cookie> cookie = cookieService.getCookie(req);
+    public void invalidate(HttpServletRequest req, HttpServletResponse resp)  {
+        Optional<Cookie> cookie = cookieService.get(req);
         String sessionId = cookie.get().getValue();
-        cookieService.invalidateCookie(req,resp);
-        remove(sessionId);
+        try {
+            remove(sessionId);
+        } catch (RepositoryException e) {
+            cookieService.invalidate(req,resp);
+        }
+        cookieService.invalidate(req,resp);
         log.info("Session invalidated {}", sessionId);
     }
 

@@ -8,11 +8,10 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-public class UserRepository implements Repository<Integer,User> {
+public class UserRepository {
     
     private static UserRepository INSTANCE;
     
@@ -26,23 +25,6 @@ public class UserRepository implements Repository<Integer,User> {
             return INSTANCE;
         }
 
-
-    @Override
-    public Optional<User> findById(Integer id) throws RepositoryException {
-        Optional<User> findedUser;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            try {
-                Query<User> query = session.createQuery("from User where id = :id", User.class);
-                query.setParameter("id", id);
-                findedUser = Optional.of(query.getSingleResult());
-                log.info("User found");
-            } catch (Exception e) {
-                log.error("Error", e);
-                throw new RepositoryException("Error while getting user");
-            }
-            return findedUser;
-        }
-    }
 
     public Optional<User> findByUserName(String userName) throws RepositoryException {
         Optional<User> findedUser;
@@ -60,12 +42,22 @@ public class UserRepository implements Repository<Integer,User> {
         }
     }
 
-    @Override
-    public List<User> findAll() {
-        return List.of();
+    public Optional<User> findByLocationId(String locationId) throws RepositoryException {
+        Optional<User> findedUser;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            try {
+                Query<User> query = session.createQuery("from User u join Location l on u.id=l.user.id where l.id = :locationId", User.class);
+                query.setParameter("locationId", locationId);
+                findedUser = Optional.of(query.getSingleResult());
+                log.info("User found");
+            } catch (Exception e) {
+                log.error("Error", e);
+                throw new RepositoryException("Error while getting user");
+            }
+            return findedUser;
+        }
     }
 
-    @Override
     public Optional<User> save(User user) throws RepositoryException {
         Optional<User> addedUser;
         Transaction transaction = null;
@@ -88,13 +80,4 @@ public class UserRepository implements Repository<Integer,User> {
         }
     }
 
-    @Override
-    public boolean delete(Integer id) throws RepositoryException {
-        return false;
-    }
-
-    @Override
-    public Optional<User> update(User entity) throws RepositoryException {
-        return Optional.empty();
-    }
 }

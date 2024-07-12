@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-public class LocationRepository implements Repository<Integer,Location> {
+public class LocationRepository {
     
     private static LocationRepository INSTANCE;
     
@@ -27,18 +27,8 @@ public class LocationRepository implements Repository<Integer,Location> {
             return INSTANCE;
         }
 
-    @Override
-    public Optional<Location> findById(Integer id){
-        return Optional.empty();
-    }
 
-    @Override
-    public List<Location> findAll(){
-        return List.of();
-    }
-
-    @Override
-    public Optional<Location> save(Location entity) throws RepositoryException {
+    public void save(Location entity) throws RepositoryException {
         Optional<Location> location;
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -55,12 +45,10 @@ public class LocationRepository implements Repository<Integer,Location> {
                 }
                 throw new RepositoryException("Error while adding location");
             }
-            return location;
         }
     }
 
-    @Override
-    public boolean delete(Integer id) throws RepositoryException {
+    public void delete(Integer id) throws RepositoryException {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             try {
@@ -77,13 +65,7 @@ public class LocationRepository implements Repository<Integer,Location> {
                 }
                 throw new RepositoryException("Error updating location");
             }
-            return true;
         }
-    }
-
-    @Override
-    public Optional<Location> update(Location entity) {
-        return Optional.empty();
     }
 
     public List<Location> findByUserID(Integer userId) throws RepositoryException {
@@ -93,7 +75,7 @@ public class LocationRepository implements Repository<Integer,Location> {
                 Query<Location> query = session.createQuery("from Location as location where location.user.id = :id", Location.class);
                 query.setParameter("id", userId);
                 findedLocations = query.getResultList();
-                log.info("Finded finded {}",findedLocations);
+                log.info("Locations size {}",findedLocations);
             } catch (Exception e) {
                 log.error("Error while getting Locations by userId");
                 throw new RepositoryException("Error while getting Locations by userId");
