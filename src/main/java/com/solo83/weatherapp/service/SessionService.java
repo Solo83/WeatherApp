@@ -87,11 +87,11 @@ public class SessionService {
         }
     }
 
-    private void setSessionExpirationTime(UserSession session) {
+    void setSessionExpirationTime(UserSession session) {
         session.setExpiresAt(LocalDateTime.now().plusSeconds(SESSION_LIFETIME_IN_SECONDS));
     }
 
-    private UserSession create(User user) {
+    UserSession create(User user) {
         String sessionId = UUID.randomUUID().toString();
         LocalDateTime expiresAt = LocalDateTime.now().plusSeconds(SESSION_LIFETIME_IN_SECONDS);
         log.info("New session created: {}", sessionId);
