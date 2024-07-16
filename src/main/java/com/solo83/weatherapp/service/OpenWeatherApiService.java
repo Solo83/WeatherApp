@@ -21,10 +21,14 @@ public final class OpenWeatherApiService {
 
     private static final String API_KEY = "23fa326989cfbf3162526f3d42ded424";
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final HttpClient client = HttpClient.newHttpClient();
+    private static HttpClient client = HttpClient.newHttpClient();
     private static OpenWeatherApiService INSTANCE;
 
     private OpenWeatherApiService() {
+    }
+
+    public OpenWeatherApiService(HttpClient httpClient) {
+        client = httpClient;
     }
 
     public static synchronized OpenWeatherApiService getInstance() {
