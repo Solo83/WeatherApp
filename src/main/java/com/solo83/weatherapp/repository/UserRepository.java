@@ -14,8 +14,6 @@ import java.util.Optional;
 public class UserRepository {
     
     private static UserRepository INSTANCE;
-    private final Session session = HibernateUtil.getSessionFactory().openSession();
-
 
         private UserRepository() {        
         }
@@ -27,10 +25,9 @@ public class UserRepository {
             return INSTANCE;
         }
 
-
     public Optional<User> findByUserName(String userName) throws RepositoryException {
         Optional<User> findedUser;
-        try (session) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             try {
                 Query<User> query = session.createQuery("from User where login = :userName", User.class);
                 query.setParameter("userName", userName);
@@ -46,7 +43,7 @@ public class UserRepository {
 
     public Optional<User> findByLocationId(String locationId) throws RepositoryException {
         Optional<User> findedUser;
-        try (session) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             try {
                 Query<User> query = session.createQuery("from User u join Location l on u.id=l.user.id where l.id = :locationId", User.class);
                 query.setParameter("locationId", locationId);
@@ -63,7 +60,7 @@ public class UserRepository {
     public Optional<User> save(User user) throws RepositoryException {
         Optional<User> addedUser;
         Transaction transaction = null;
-        try (session) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             try {
                 transaction = session.beginTransaction();
                 session.persist(user);

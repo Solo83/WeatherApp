@@ -16,10 +16,6 @@ public class SessionRepository {
 
     private static SessionRepository INSTANCE;
 
-    public static SessionRepository TEST_CreateInstance() {
-        return new SessionRepository();
-    }
-
         private SessionRepository() {
         }
 
