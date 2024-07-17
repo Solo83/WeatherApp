@@ -25,7 +25,7 @@ public class Search extends HttpServlet {
 
         if (locationName == null || locationName.isEmpty()) {
             req.setAttribute("error", "Enter a valid location name");
-            req.getRequestDispatcher("home").forward(req,resp);
+            req.getRequestDispatcher("home").forward(req, resp);
             return;
         }
 
@@ -36,20 +36,20 @@ public class Search extends HttpServlet {
         } catch (ServiceException e) {
             log.error(e.getMessage());
             req.setAttribute("error", "openWeatherApi error");
-            req.getRequestDispatcher("home").forward(req,resp);
+            req.getRequestDispatcher("home").forward(req, resp);
             return;
         }
 
         if (locations.isEmpty()) {
             req.setAttribute("error", "Nothing found");
-            req.getRequestDispatcher("home").forward(req,resp);
+            req.getRequestDispatcher("home").forward(req, resp);
             return;
         }
 
         req.setAttribute("locations", locations);
         req.setAttribute("locationName", locationName);
 
-        req.getRequestDispatcher("home").forward(req,resp);
+        req.getRequestDispatcher("home").forward(req, resp);
     }
 }
 

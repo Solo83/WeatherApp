@@ -1,8 +1,15 @@
 package com.solo83.weatherapp.controller;
 
 import com.solo83.weatherapp.entity.User;
+import com.solo83.weatherapp.repository.LocationRepository;
+import com.solo83.weatherapp.repository.SessionRepository;
+import com.solo83.weatherapp.repository.UserRepository;
+import com.solo83.weatherapp.service.CookieService;
 import com.solo83.weatherapp.service.LocationService;
+import com.solo83.weatherapp.service.OpenWeatherApiService;
+import com.solo83.weatherapp.service.SessionService;
 import com.solo83.weatherapp.service.UserService;
+import com.solo83.weatherapp.utils.config.HibernateUtil;
 import com.solo83.weatherapp.utils.exception.RepositoryException;
 import com.solo83.weatherapp.utils.exception.ServiceException;
 import com.solo83.weatherapp.utils.renderer.ThymeleafTemplateRenderer;
@@ -20,9 +27,9 @@ import java.util.Optional;
 @WebServlet("/remove")
 public class RemoveLocation extends HttpServlet {
 
-    ThymeleafTemplateRenderer thymeleafTemplateRenderer = ThymeleafTemplateRenderer.getInstance();
-    LocationService locationService = LocationService.getInstance();
-    UserService userService = UserService.getInstance();
+    private final ThymeleafTemplateRenderer thymeleafTemplateRenderer = ThymeleafTemplateRenderer.getInstance();
+    private final LocationService locationService = LocationService.getInstance(LocationRepository.getInstance(HibernateUtil.getSessionFactory()), OpenWeatherApiService.getInstance());
+    private final UserService userService = UserService.getInstance(UserRepository.getInstance(HibernateUtil.getSessionFactory()), CookieService.getInstance(), SessionService.getInstance(SessionRepository.getInstance(HibernateUtil.getSessionFactory()),CookieService.getInstance()));
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -49,7 +56,6 @@ public class RemoveLocation extends HttpServlet {
         if (user.isPresent() && user.get().equals(userFromRequest.get())) {
             locationService.removeLocation(locationId);
         }
-
         resp.sendRedirect("home");
     }
 }

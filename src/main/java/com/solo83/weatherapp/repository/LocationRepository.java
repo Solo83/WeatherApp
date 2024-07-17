@@ -1,11 +1,10 @@
 package com.solo83.weatherapp.repository;
 
 import com.solo83.weatherapp.entity.Location;
-
-import com.solo83.weatherapp.utils.config.HibernateUtil;
 import com.solo83.weatherapp.utils.exception.RepositoryException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
@@ -16,13 +15,15 @@ import java.util.Optional;
 public class LocationRepository {
     
     private static LocationRepository INSTANCE;
+    private final SessionFactory sessionFactory;
     
-        private LocationRepository() {        
+        private LocationRepository(SessionFactory sessionFactory) {
+            this.sessionFactory = sessionFactory;
         }
         
-        public static LocationRepository getInstance() {
+        public static LocationRepository getInstance(SessionFactory sessionFactory) {
             if(INSTANCE == null) {
-                INSTANCE = new LocationRepository();
+                INSTANCE = new LocationRepository(sessionFactory);
             }
             return INSTANCE;
         }
@@ -31,7 +32,7 @@ public class LocationRepository {
     public void save(Location entity) throws RepositoryException {
         Optional<Location> location;
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             try {
                 transaction = session.beginTransaction();
                 session.persist(entity);
@@ -50,7 +51,7 @@ public class LocationRepository {
 
     public void delete(Integer id) throws RepositoryException {
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             try {
                 transaction = session.beginTransaction();
                 Location location = session.get(Location.class, id);
@@ -70,7 +71,7 @@ public class LocationRepository {
 
     public List<Location> findByUserID(Integer userId) throws RepositoryException {
         List<Location> findedLocations;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             try {
                 Query<Location> query = session.createQuery("from Location as location where location.user.id = :id", Location.class);
                 query.setParameter("id", userId);
