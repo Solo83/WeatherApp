@@ -17,22 +17,21 @@ import java.util.Optional;
 public class UserService {
 
     private static UserService INSTANCE;
-    private final CookieService cookieService = CookieService.getInstance();
-    private final UserRepository userRepository = UserRepository.getInstance();
-    private final SessionService sessionService = SessionService.getInstance();
+    private final CookieService cookieService ;
+    private final UserRepository userRepository;
+    private final SessionService sessionService;
 
-    private UserService() {
+    private UserService(UserRepository userRepository,CookieService cookieService,SessionService sessionService) {
+        this.userRepository = userRepository;
+        this.cookieService = cookieService;
+        this.sessionService = sessionService;
     }
 
-    public static UserService getInstance() {
+    public static UserService getInstance(UserRepository userRepository,CookieService cookieService,SessionService sessionService) {
         if (INSTANCE == null) {
-            INSTANCE = new UserService();
+            INSTANCE = new UserService(userRepository,cookieService,sessionService);
         }
         return INSTANCE;
-    }
-
-    public static UserService TEST_CreateInstance() {
-        return new UserService();
     }
 
     public User getUserFromRequest(HttpServletRequest req) throws ServiceException {

@@ -1,10 +1,10 @@
 package com.solo83.weatherapp.repository;
 
 import com.solo83.weatherapp.entity.UserSession;
-import com.solo83.weatherapp.utils.config.HibernateUtil;
 import com.solo83.weatherapp.utils.exception.RepositoryException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
@@ -15,13 +15,15 @@ import java.util.Optional;
 public class SessionRepository {
 
     private static SessionRepository INSTANCE;
+    private final SessionFactory sessionFactory;
 
-        private SessionRepository() {
+        private SessionRepository(SessionFactory sessionFactory) {
+            this.sessionFactory = sessionFactory;
         }
 
-        public static SessionRepository getInstance() {
+        public static SessionRepository getInstance(SessionFactory sessionFactory) {
             if(INSTANCE == null) {
-                INSTANCE = new SessionRepository();
+                INSTANCE = new SessionRepository(sessionFactory);
             }
             return INSTANCE;
         }
@@ -29,7 +31,7 @@ public class SessionRepository {
 
     public Optional<UserSession> findByUserId(String userId) throws RepositoryException {
         Optional<UserSession> findedSession;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             try {
                 Query<UserSession> query = session.createQuery("from UserSession as session where session.user.id = :id", UserSession.class);
                 query.setParameter("id", userId);
@@ -45,7 +47,7 @@ public class SessionRepository {
 
     public Optional<UserSession> findById(String id) throws RepositoryException {
         Optional<UserSession> findedSession;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             try {
                 Query<UserSession> query = session.createQuery("from UserSession where id = :id", UserSession.class);
                 query.setParameter("id", id);
@@ -61,7 +63,7 @@ public class SessionRepository {
 
     public List<UserSession> findAll() throws RepositoryException {
         List<UserSession> userSessions;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             Query<UserSession> query = session.createQuery("from UserSession ", UserSession.class);
             userSessions = query.getResultList();
             log.info("Finded userSessions {}", userSessions.size());
@@ -75,7 +77,7 @@ public class SessionRepository {
     public void save(UserSession userSession) throws RepositoryException {
         Optional<UserSession> addedSession;
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             try {
                 transaction = session.beginTransaction();
                 session.persist(userSession);
@@ -94,7 +96,7 @@ public class SessionRepository {
 
     public void delete(String id) throws RepositoryException {
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             try {
                 transaction = session.beginTransaction();
                 UserSession userSession = session.get(UserSession.class, id);
@@ -115,7 +117,7 @@ public class SessionRepository {
     public void update(UserSession userSession) throws RepositoryException {
         Optional<UserSession> updatedSession;
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             try {
                 transaction = session.beginTransaction();
                 session.merge(userSession);

@@ -2,8 +2,12 @@ package com.solo83.weatherapp.controller;
 
 import com.solo83.weatherapp.dto.GetUserRequest;
 import com.solo83.weatherapp.entity.User;
+import com.solo83.weatherapp.repository.SessionRepository;
+import com.solo83.weatherapp.repository.UserRepository;
+import com.solo83.weatherapp.service.CookieService;
 import com.solo83.weatherapp.service.SessionService;
 import com.solo83.weatherapp.service.UserService;
+import com.solo83.weatherapp.utils.config.HibernateUtil;
 import com.solo83.weatherapp.utils.exception.RepositoryException;
 import com.solo83.weatherapp.utils.exception.ValidatorException;
 import com.solo83.weatherapp.utils.renderer.ThymeleafTemplateRenderer;
@@ -21,8 +25,8 @@ public class SignUp extends HttpServlet {
 
     private final ThymeleafTemplateRenderer thymeleafTemplateRenderer = ThymeleafTemplateRenderer.getInstance();
     private final InputValidator validator = new InputValidator();
-    private final UserService userService = UserService.getInstance();
-    private final SessionService sessionService = SessionService.getInstance();
+    private final SessionService sessionService = SessionService.getInstance(SessionRepository.getInstance(HibernateUtil.getSessionFactory()),CookieService.getInstance());
+    private final UserService userService = UserService.getInstance(UserRepository.getInstance(HibernateUtil.getSessionFactory()), CookieService.getInstance(), sessionService);
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
@@ -49,7 +53,6 @@ public class SignUp extends HttpServlet {
             thymeleafTemplateRenderer.renderTemplate(req, resp, "signup");
             return;
         }
-
         resp.sendRedirect("home");
     }
 }

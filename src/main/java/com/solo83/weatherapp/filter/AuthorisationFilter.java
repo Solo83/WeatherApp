@@ -2,8 +2,10 @@ package com.solo83.weatherapp.filter;
 
 import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.entity.UserSession;
+import com.solo83.weatherapp.repository.SessionRepository;
 import com.solo83.weatherapp.service.CookieService;
 import com.solo83.weatherapp.service.SessionService;
+import com.solo83.weatherapp.utils.config.HibernateUtil;
 import com.solo83.weatherapp.utils.renderer.ThymeleafTemplateRenderer;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -25,7 +27,7 @@ public class AuthorisationFilter implements Filter {
 
     private static final String ERROR_MESSAGE_NOT_FOUND = "Session not found, please SignIn";
     private static final String ERROR_MESSAGE_SESSION_EXPIRED = "Session is expired, please SignIn";
-    private static final SessionService sessionService = SessionService.getInstance();
+    private static final SessionService sessionService = SessionService.getInstance(SessionRepository.getInstance(HibernateUtil.getSessionFactory()),CookieService.getInstance());
     private final CookieService cookieService = CookieService.getInstance();
     private final ThymeleafTemplateRenderer thymeleafTemplateRenderer = ThymeleafTemplateRenderer.getInstance();
 

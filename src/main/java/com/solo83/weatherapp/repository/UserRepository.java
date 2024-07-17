@@ -1,10 +1,10 @@
 package com.solo83.weatherapp.repository;
 
 import com.solo83.weatherapp.entity.User;
-import com.solo83.weatherapp.utils.config.HibernateUtil;
 import com.solo83.weatherapp.utils.exception.RepositoryException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
@@ -14,20 +14,22 @@ import java.util.Optional;
 public class UserRepository {
     
     private static UserRepository INSTANCE;
+    private final SessionFactory sessionFactory;
 
-        private UserRepository() {        
+        private UserRepository(SessionFactory sessionFactory) {
+            this.sessionFactory = sessionFactory;
         }
         
-        public static UserRepository getInstance() {
+        public static UserRepository getInstance(SessionFactory sessionFactory) {
             if(INSTANCE == null) {
-                INSTANCE = new UserRepository();
+                INSTANCE = new UserRepository(sessionFactory);
             }
             return INSTANCE;
         }
 
     public Optional<User> findByUserName(String userName) throws RepositoryException {
         Optional<User> findedUser;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             try {
                 Query<User> query = session.createQuery("from User where login = :userName", User.class);
                 query.setParameter("userName", userName);
@@ -43,7 +45,7 @@ public class UserRepository {
 
     public Optional<User> findByLocationId(String locationId) throws RepositoryException {
         Optional<User> findedUser;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             try {
                 Query<User> query = session.createQuery("from User u join Location l on u.id=l.user.id where l.id = :locationId", User.class);
                 query.setParameter("locationId", locationId);
@@ -60,7 +62,7 @@ public class UserRepository {
     public Optional<User> save(User user) throws RepositoryException {
         Optional<User> addedUser;
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             try {
                 transaction = session.beginTransaction();
                 session.persist(user);

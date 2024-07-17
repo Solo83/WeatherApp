@@ -18,22 +18,21 @@ import java.util.UUID;
 @Slf4j
 public class SessionService {
 
-    private final SessionRepository sessionRepository = SessionRepository.getInstance();
+    private final SessionRepository sessionRepository ;
     private static final int SESSION_LIFETIME_IN_SECONDS = 10*60;
-    private final CookieService cookieService = CookieService.getInstance();
+    private final CookieService cookieService;
     private static SessionService INSTANCE;
 
-    private SessionService() {}
-
-    public static SessionService getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new SessionService();
-        }
-        return INSTANCE;
+    private SessionService(SessionRepository sessionRepository, CookieService cookieService) {
+        this.sessionRepository = sessionRepository;
+        this.cookieService = cookieService;
     }
 
-    public static SessionService TEST_CreateInstance() {
-        return new SessionService();
+    public static SessionService getInstance(SessionRepository sessionRepository,CookieService cookieService) {
+        if (INSTANCE == null) {
+            INSTANCE = new SessionService(sessionRepository,cookieService);
+        }
+        return INSTANCE;
     }
 
     public Optional<UserSession> get(User user, HttpServletResponse resp) throws RepositoryException {
