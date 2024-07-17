@@ -31,6 +31,10 @@ public class UserService {
         return INSTANCE;
     }
 
+    public static UserService TEST_CreateInstance() {
+        return new UserService();
+    }
+
     public User getUserFromRequest(HttpServletRequest req) throws ServiceException {
         User user = (User) req.getAttribute("user");
 

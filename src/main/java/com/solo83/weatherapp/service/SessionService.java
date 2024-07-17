@@ -32,6 +32,10 @@ public class SessionService {
         return INSTANCE;
     }
 
+    public static SessionService TEST_CreateInstance() {
+        return new SessionService();
+    }
+
     public Optional<UserSession> get(User user, HttpServletResponse resp) throws RepositoryException {
         String userId = user.getId().toString();
         Optional<UserSession> session;
