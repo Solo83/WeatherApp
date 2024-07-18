@@ -12,20 +12,19 @@ import java.util.Optional;
 
 @Slf4j
 public class UserRepository {
-    
     private static UserRepository INSTANCE;
     private final SessionFactory sessionFactory;
 
-        private UserRepository(SessionFactory sessionFactory) {
-            this.sessionFactory = sessionFactory;
+    private UserRepository(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
+    public static UserRepository getInstance(SessionFactory sessionFactory) {
+        if (INSTANCE == null) {
+            INSTANCE = new UserRepository(sessionFactory);
         }
-        
-        public static UserRepository getInstance(SessionFactory sessionFactory) {
-            if(INSTANCE == null) {
-                INSTANCE = new UserRepository(sessionFactory);
-            }
-            return INSTANCE;
-        }
+        return INSTANCE;
+    }
 
     public Optional<User> findByUserName(String userName) throws RepositoryException {
         Optional<User> findedUser;

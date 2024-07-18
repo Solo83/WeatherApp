@@ -29,13 +29,11 @@ import static org.mockito.Mockito.verify;
 public class SessionServiceTest {
 
     private HttpServletResponse response;
-    private final SessionService sessionService = SessionService.getInstance(SessionRepository.getInstance(HibernateTestUtil.getSessionFactory()),CookieService.getInstance());
-    private final UserService userService =
-            UserService.getInstance(UserRepository.getInstance(HibernateTestUtil.getSessionFactory()),CookieService.getInstance(),sessionService);
+    private final SessionService sessionService = SessionService.getInstance(SessionRepository.getInstance(HibernateTestUtil.getSessionFactory()), CookieService.getInstance());
+    private final UserService userService = UserService.getInstance(UserRepository.getInstance(HibernateTestUtil.getSessionFactory()), CookieService.getInstance(), sessionService);
 
     private User user;
     private UserSession userSession;
-
 
     @BeforeEach
     void setUp() {

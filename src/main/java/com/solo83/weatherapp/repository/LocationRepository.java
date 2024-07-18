@@ -13,21 +13,19 @@ import java.util.Optional;
 
 @Slf4j
 public class LocationRepository {
-    
     private static LocationRepository INSTANCE;
     private final SessionFactory sessionFactory;
-    
-        private LocationRepository(SessionFactory sessionFactory) {
-            this.sessionFactory = sessionFactory;
-        }
-        
-        public static LocationRepository getInstance(SessionFactory sessionFactory) {
-            if(INSTANCE == null) {
-                INSTANCE = new LocationRepository(sessionFactory);
-            }
-            return INSTANCE;
-        }
 
+    private LocationRepository(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
+    public static LocationRepository getInstance(SessionFactory sessionFactory) {
+        if (INSTANCE == null) {
+            INSTANCE = new LocationRepository(sessionFactory);
+        }
+        return INSTANCE;
+    }
 
     public void save(Location entity) throws RepositoryException {
         Optional<Location> location;
@@ -76,7 +74,7 @@ public class LocationRepository {
                 Query<Location> query = session.createQuery("from Location as location where location.user.id = :id", Location.class);
                 query.setParameter("id", userId);
                 findedLocations = query.getResultList();
-                log.info("Locations size {}",findedLocations);
+                log.info("Locations size {}", findedLocations);
             } catch (Exception e) {
                 log.error("Error while getting Locations by userId");
                 throw new RepositoryException("Error while getting Locations by userId");
