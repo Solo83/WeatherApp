@@ -3,6 +3,7 @@ package com.solo83.weatherapp.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.solo83.weatherapp.dto.GetLocationRequest;
+import com.solo83.weatherapp.utils.config.PropsUtil;
 import com.solo83.weatherapp.utils.exception.ServiceException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.net.URIBuilder;
@@ -20,7 +21,7 @@ import java.util.Optional;
 
 public final class OpenWeatherApiService {
 
-    private static final String API_KEY = "***REMOVED***";
+    private static final String API_KEY = PropsUtil.GetOpenWeatherApiKey();
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final HttpClient client = HttpClient.newHttpClient();
     private static OpenWeatherApiService INSTANCE;
@@ -55,7 +56,6 @@ public final class OpenWeatherApiService {
                 location.setCountry(node.get("country").asText());
                 locations.add(location);
             }
-
             for (GetLocationRequest location : locations) {
                 String dataJson = currentWeatherDataApiRequest(location.getLatitude().toString(), location.getLongitude().toString());
                 log.info("Data api response: {}", dataJson);
