@@ -16,18 +16,19 @@ import java.util.Optional;
 @Slf4j
 public class LocationService {
 
-    LocationRepository locationRepository = LocationRepository.getInstance();
-
-    OpenWeatherApiService openWeatherApiService = OpenWeatherApiService.getInstance();
+    LocationRepository locationRepository;
+    OpenWeatherApiService openWeatherApiService;
 
     private static LocationService INSTANCE;
 
-        private LocationService() {
+        private LocationService(LocationRepository locationRepository, OpenWeatherApiService openWeatherApiService) {
+            this.locationRepository = locationRepository;
+            this.openWeatherApiService = openWeatherApiService;
         }
 
-        public static LocationService getInstance() {
+        public static LocationService getInstance(LocationRepository locationRepository, OpenWeatherApiService openWeatherApiService) {
             if(INSTANCE == null) {
-                INSTANCE = new LocationService();
+                INSTANCE = new LocationService(locationRepository, openWeatherApiService);
             }
             return INSTANCE;
         }
@@ -46,11 +47,11 @@ public class LocationService {
         }
     }
 
-    public List<Location> getLocations(Integer userId) throws ServiceException {
+    public List<Location> getLocations(Integer userId) throws RepositoryException {
         try {
             return locationRepository.findByUserID(userId);
         } catch (RepositoryException e) {
-            throw new ServiceException(e.getMessage());
+            throw new RepositoryException("Error while getting location");
         }
     }
 

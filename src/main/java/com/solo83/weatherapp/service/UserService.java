@@ -17,16 +17,19 @@ import java.util.Optional;
 public class UserService {
 
     private static UserService INSTANCE;
-    private final CookieService cookieService = CookieService.getInstance();
-    private final UserRepository userRepository = UserRepository.getInstance();
-    private final SessionService sessionService = SessionService.getInstance();
+    private final CookieService cookieService ;
+    private final UserRepository userRepository;
+    private final SessionService sessionService;
 
-    private UserService() {
+    private UserService(UserRepository userRepository,CookieService cookieService,SessionService sessionService) {
+        this.userRepository = userRepository;
+        this.cookieService = cookieService;
+        this.sessionService = sessionService;
     }
 
-    public static UserService getInstance() {
+    public static UserService getInstance(UserRepository userRepository,CookieService cookieService,SessionService sessionService) {
         if (INSTANCE == null) {
-            INSTANCE = new UserService();
+            INSTANCE = new UserService(userRepository,cookieService,sessionService);
         }
         return INSTANCE;
     }
@@ -35,7 +38,7 @@ public class UserService {
         User user = (User) req.getAttribute("user");
 
         if (user == null) {
-            Optional<Cookie> cookie = cookieService.getCookie(req);
+            Optional<Cookie> cookie = cookieService.get(req);
             if (cookie.isEmpty()) {
                 throw new ServiceException("Cookie not found");
             }
@@ -52,26 +55,26 @@ public class UserService {
     }
 
 
-    public User save(GetUserRequest getUserRequest) throws ServiceException {
+    public User save(GetUserRequest getUserRequest) throws RepositoryException {
         String hashPass = BCrypt.hashpw(getUserRequest.getPassword(), BCrypt.gensalt(12));
         User user = new User(getUserRequest.getLogin(), hashPass);
         Optional<User> userOptional;
         try {
-           userOptional = userRepository.save(user);
+            userOptional = userRepository.save(user);
         } catch (RepositoryException e) {
-            throw new ServiceException("User cant be saved");
+            throw new RepositoryException("User cant be saved");
         }
 
         return userOptional.get();
 
     }
 
-    public User getUser(GetUserRequest getUserRequest) throws ServiceException {
+    public User getUser(GetUserRequest getUserRequest) throws ServiceException, RepositoryException {
         User user;
         try {
             user = userRepository.findByUserName(getUserRequest.getLogin()).get();
         } catch (RepositoryException e) {
-            throw new ServiceException("User does not exist");
+            throw new RepositoryException("User does not exist");
         }
 
         String password = getUserRequest.getPassword();
@@ -85,6 +88,18 @@ public class UserService {
 
         return user;
 
+    }
+
+
+    public Optional<User> getUserByLocationId(String locationId) throws RepositoryException {
+        Optional<User> user;
+        try {
+            user = userRepository.findByLocationId(locationId);
+        } catch (RepositoryException e) {
+            throw new RepositoryException("User does not exist");
+        }
+
+        return user;
     }
 
     private boolean isPasswordCorrect(String password, String hashPass) {

@@ -4,7 +4,6 @@ import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.entity.UserSession;
 import com.solo83.weatherapp.repository.SessionRepository;
 import com.solo83.weatherapp.utils.exception.RepositoryException;
-import com.solo83.weatherapp.utils.exception.ServiceException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,21 +18,24 @@ import java.util.UUID;
 @Slf4j
 public class SessionService {
 
-    private final SessionRepository sessionRepository = SessionRepository.getInstance();
+    private final SessionRepository sessionRepository ;
     private static final int SESSION_LIFETIME_IN_SECONDS = 10*60;
-    private final CookieService cookieService = CookieService.getInstance();
+    private final CookieService cookieService;
     private static SessionService INSTANCE;
 
-    private SessionService() {}
+    private SessionService(SessionRepository sessionRepository, CookieService cookieService) {
+        this.sessionRepository = sessionRepository;
+        this.cookieService = cookieService;
+    }
 
-    public static SessionService getInstance() {
+    public static SessionService getInstance(SessionRepository sessionRepository,CookieService cookieService) {
         if (INSTANCE == null) {
-            INSTANCE = new SessionService();
+            INSTANCE = new SessionService(sessionRepository,cookieService);
         }
         return INSTANCE;
     }
 
-    public Optional<UserSession> getSession(User user, HttpServletResponse resp) throws RepositoryException, ServiceException {
+    public Optional<UserSession> get(User user, HttpServletResponse resp) throws RepositoryException {
         String userId = user.getId().toString();
         Optional<UserSession> session;
 
@@ -51,7 +53,7 @@ public class SessionService {
             sessionRepository.update(userSession);
         }
 
-        cookieService.setCookie(resp,userSession.getId());
+        cookieService.set(resp,userSession.getId());
 
         return session;
     }
@@ -60,11 +62,15 @@ public class SessionService {
         sessionRepository.delete(sessionId);
     }
 
-    public void invalidate(HttpServletRequest req, HttpServletResponse resp) throws RepositoryException {
-        Optional<Cookie> cookie = cookieService.getCookie(req);
+    public void invalidate(HttpServletRequest req, HttpServletResponse resp)  {
+        Optional<Cookie> cookie = cookieService.get(req);
         String sessionId = cookie.get().getValue();
-        cookieService.invalidateCookie(req,resp);
-        remove(sessionId);
+        try {
+            remove(sessionId);
+        } catch (RepositoryException e) {
+            cookieService.invalidate(req,resp);
+        }
+        cookieService.invalidate(req,resp);
         log.info("Session invalidated {}", sessionId);
     }
 
@@ -84,11 +90,11 @@ public class SessionService {
         }
     }
 
-    private void setSessionExpirationTime(UserSession session) {
+    void setSessionExpirationTime(UserSession session) {
         session.setExpiresAt(LocalDateTime.now().plusSeconds(SESSION_LIFETIME_IN_SECONDS));
     }
 
-    private UserSession create(User user) {
+    UserSession create(User user) {
         String sessionId = UUID.randomUUID().toString();
         LocalDateTime expiresAt = LocalDateTime.now().plusSeconds(SESSION_LIFETIME_IN_SECONDS);
         log.info("New session created: {}", sessionId);

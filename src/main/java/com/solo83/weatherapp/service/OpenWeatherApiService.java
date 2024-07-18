@@ -17,6 +17,7 @@ import java.util.Optional;
 
 
 @Slf4j
+
 public final class OpenWeatherApiService {
 
     private static final String API_KEY = "***REMOVED***";
@@ -46,8 +47,11 @@ public final class OpenWeatherApiService {
                 location.setName(node.get("name").asText());
                 location.setLatitude(node.get("lat").decimalValue());
                 location.setLongitude(node.get("lon").decimalValue());
-                if(node.has("state")) {location.setState(node.get("state").asText());}
-                else {location.setState("");}
+                if (node.has("state")) {
+                    location.setState(node.get("state").asText());
+                } else {
+                    location.setState("");
+                }
                 location.setCountry(node.get("country").asText());
                 locations.add(location);
             }
@@ -72,7 +76,7 @@ public final class OpenWeatherApiService {
         String longitude = getLocationRequest.getLongitude().toString();
         try {
             String dataJson = currentWeatherDataApiRequest(latitude, longitude);
-            log.info("Data api response: {}", dataJson);
+            log.info("Geocoding api response: {}", dataJson);
             JsonNode dataNode = objectMapper.readTree(dataJson);
             JsonNode mainNode = dataNode.get("main");
             JsonNode sysNode = dataNode.get("sys");

@@ -1,10 +1,10 @@
 package com.solo83.weatherapp.repository;
 
 import com.solo83.weatherapp.entity.UserSession;
-import com.solo83.weatherapp.utils.config.HibernateUtil;
 import com.solo83.weatherapp.utils.exception.RepositoryException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
@@ -12,24 +12,24 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-public class SessionRepository implements Repository<String, UserSession> {
-
+public class SessionRepository {
     private static SessionRepository INSTANCE;
+    private final SessionFactory sessionFactory;
 
-        private SessionRepository() {
+    private SessionRepository(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
+    public static SessionRepository getInstance(SessionFactory sessionFactory) {
+        if (INSTANCE == null) {
+            INSTANCE = new SessionRepository(sessionFactory);
         }
-
-        public static SessionRepository getInstance() {
-            if(INSTANCE == null) {
-                INSTANCE = new SessionRepository();
-            }
-            return INSTANCE;
-        }
-
+        return INSTANCE;
+    }
 
     public Optional<UserSession> findByUserId(String userId) throws RepositoryException {
         Optional<UserSession> findedSession;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             try {
                 Query<UserSession> query = session.createQuery("from UserSession as session where session.user.id = :id", UserSession.class);
                 query.setParameter("id", userId);
@@ -43,10 +43,9 @@ public class SessionRepository implements Repository<String, UserSession> {
         }
     }
 
-    @Override
     public Optional<UserSession> findById(String id) throws RepositoryException {
         Optional<UserSession> findedSession;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             try {
                 Query<UserSession> query = session.createQuery("from UserSession where id = :id", UserSession.class);
                 query.setParameter("id", id);
@@ -60,10 +59,9 @@ public class SessionRepository implements Repository<String, UserSession> {
         }
     }
 
-    @Override
     public List<UserSession> findAll() throws RepositoryException {
         List<UserSession> userSessions;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             Query<UserSession> query = session.createQuery("from UserSession ", UserSession.class);
             userSessions = query.getResultList();
             log.info("Finded userSessions {}", userSessions.size());
@@ -74,11 +72,10 @@ public class SessionRepository implements Repository<String, UserSession> {
         return userSessions;
     }
 
-    @Override
-    public Optional<UserSession> save(UserSession userSession) throws RepositoryException {
+    public void save(UserSession userSession) throws RepositoryException {
         Optional<UserSession> addedSession;
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             try {
                 transaction = session.beginTransaction();
                 session.persist(userSession);
@@ -92,14 +89,12 @@ public class SessionRepository implements Repository<String, UserSession> {
                 }
                 throw new RepositoryException("Error while adding session");
             }
-            return addedSession;
         }
     }
 
-    @Override
-    public boolean delete(String id) throws RepositoryException {
+    public void delete(String id) throws RepositoryException {
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             try {
                 transaction = session.beginTransaction();
                 UserSession userSession = session.get(UserSession.class, id);
@@ -107,22 +102,20 @@ public class SessionRepository implements Repository<String, UserSession> {
                 transaction.commit();
                 log.info("Session deleted: {}", userSession.getId());
             } catch (Exception e) {
-                log.error("Error while deleting session {}",e.getMessage());
+                log.error("Error while deleting session {}", e.getMessage());
                 if (transaction != null) {
                     transaction.rollback();
                     log.info("Transaction is {}", transaction.getStatus());
                 }
                 throw new RepositoryException("Error updating session");
             }
-            return true;
         }
     }
 
-    @Override
-    public Optional<UserSession> update(UserSession userSession) throws RepositoryException {
+    public void update(UserSession userSession) throws RepositoryException {
         Optional<UserSession> updatedSession;
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             try {
                 transaction = session.beginTransaction();
                 session.merge(userSession);
@@ -137,8 +130,7 @@ public class SessionRepository implements Repository<String, UserSession> {
                 }
                 throw new RepositoryException("Error updating session");
             }
-            return updatedSession;
         }
     }
-    }
+}
 

@@ -1,11 +1,10 @@
 package com.solo83.weatherapp.repository;
 
 import com.solo83.weatherapp.entity.Location;
-
-import com.solo83.weatherapp.utils.config.HibernateUtil;
 import com.solo83.weatherapp.utils.exception.RepositoryException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
@@ -13,35 +12,25 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-public class LocationRepository implements Repository<Integer,Location> {
-    
+public class LocationRepository {
     private static LocationRepository INSTANCE;
-    
-        private LocationRepository() {        
-        }
-        
-        public static LocationRepository getInstance() {
-            if(INSTANCE == null) {
-                INSTANCE = new LocationRepository();
-            }
-            return INSTANCE;
-        }
+    private final SessionFactory sessionFactory;
 
-    @Override
-    public Optional<Location> findById(Integer id){
-        return Optional.empty();
+    private LocationRepository(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
-    @Override
-    public List<Location> findAll(){
-        return List.of();
+    public static LocationRepository getInstance(SessionFactory sessionFactory) {
+        if (INSTANCE == null) {
+            INSTANCE = new LocationRepository(sessionFactory);
+        }
+        return INSTANCE;
     }
 
-    @Override
-    public Optional<Location> save(Location entity) throws RepositoryException {
+    public void save(Location entity) throws RepositoryException {
         Optional<Location> location;
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             try {
                 transaction = session.beginTransaction();
                 session.persist(entity);
@@ -55,14 +44,12 @@ public class LocationRepository implements Repository<Integer,Location> {
                 }
                 throw new RepositoryException("Error while adding location");
             }
-            return location;
         }
     }
 
-    @Override
-    public boolean delete(Integer id) throws RepositoryException {
+    public void delete(Integer id) throws RepositoryException {
         Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             try {
                 transaction = session.beginTransaction();
                 Location location = session.get(Location.class, id);
@@ -77,23 +64,17 @@ public class LocationRepository implements Repository<Integer,Location> {
                 }
                 throw new RepositoryException("Error updating location");
             }
-            return true;
         }
-    }
-
-    @Override
-    public Optional<Location> update(Location entity) {
-        return Optional.empty();
     }
 
     public List<Location> findByUserID(Integer userId) throws RepositoryException {
         List<Location> findedLocations;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             try {
                 Query<Location> query = session.createQuery("from Location as location where location.user.id = :id", Location.class);
                 query.setParameter("id", userId);
                 findedLocations = query.getResultList();
-                log.info("Finded finded {}",findedLocations);
+                log.info("Locations size {}", findedLocations);
             } catch (Exception e) {
                 log.error("Error while getting Locations by userId");
                 throw new RepositoryException("Error while getting Locations by userId");
