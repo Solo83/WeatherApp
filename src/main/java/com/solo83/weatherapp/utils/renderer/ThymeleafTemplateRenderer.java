@@ -16,7 +16,6 @@ import java.io.IOException;
 
 @Slf4j
 public class ThymeleafTemplateRenderer {
-
     private static ThymeleafTemplateRenderer INSTANCE;
 
     private ThymeleafTemplateRenderer() {
@@ -30,7 +29,6 @@ public class ThymeleafTemplateRenderer {
     }
 
     public void renderTemplate(HttpServletRequest req, HttpServletResponse resp, String templateName) {
-
         JakartaServletWebApplication application = JakartaServletWebApplication.buildApplication(req.getServletContext());
         ITemplateEngine templateEngine = buildTemplateEngine(application);
         IWebExchange webExchange = application.buildExchange(req, resp);
@@ -44,18 +42,12 @@ public class ThymeleafTemplateRenderer {
 
 
     private ITemplateEngine buildTemplateEngine(final IWebApplication application) {
-
         final WebApplicationTemplateResolver templateResolver = new WebApplicationTemplateResolver(application);
-        // HTML is the default mode, but we will set it anyway for better understanding of code
         templateResolver.setTemplateMode(TemplateMode.HTML);
         templateResolver.setCharacterEncoding("UTF-8");
-        // This will convert "home" to "/WEB-INF/templates/home.html"
         templateResolver.setPrefix("/WEB-INF/templates/");
         templateResolver.setSuffix(".html");
-        // Set template cache TTL to 1 hour. If not set, entries would live in cache until expelled by LRU
         templateResolver.setCacheTTLMs(3600000L);
-        // Cache is set to true by default. Set to false if you want templates to
-        // be automatically updated when modified.
         templateResolver.setCacheable(false);
         final TemplateEngine templateEngine = new TemplateEngine();
         templateEngine.setTemplateResolver(templateResolver);

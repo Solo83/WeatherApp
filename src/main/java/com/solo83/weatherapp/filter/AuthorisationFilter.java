@@ -2,13 +2,12 @@ package com.solo83.weatherapp.filter;
 
 import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.entity.UserSession;
-import com.solo83.weatherapp.repository.SessionRepository;
 import com.solo83.weatherapp.service.CookieService;
 import com.solo83.weatherapp.service.SessionService;
-import com.solo83.weatherapp.utils.config.HibernateUtil;
 import com.solo83.weatherapp.utils.renderer.ThymeleafTemplateRenderer;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -27,17 +26,24 @@ public class AuthorisationFilter implements Filter {
 
     private static final String ERROR_MESSAGE_NOT_FOUND = "Session not found, please SignIn";
     private static final String ERROR_MESSAGE_SESSION_EXPIRED = "Session is expired, please SignIn";
-    private static final SessionService sessionService = SessionService.getInstance(SessionRepository.getInstance(HibernateUtil.getSessionFactory()),CookieService.getInstance());
-    private final CookieService cookieService = CookieService.getInstance();
-    private final ThymeleafTemplateRenderer thymeleafTemplateRenderer = ThymeleafTemplateRenderer.getInstance();
+    private  SessionService sessionService;
+    private  CookieService cookieService;
+    private  ThymeleafTemplateRenderer thymeleafTemplateRenderer;
+
+    @Override
+    public void init(FilterConfig filterConfig) {
+        thymeleafTemplateRenderer = ((ThymeleafTemplateRenderer) filterConfig.getServletContext().getAttribute("thymeleafTemplateRenderer"));
+        sessionService = ((SessionService) filterConfig.getServletContext().getAttribute("sessionService"));
+        cookieService = ((CookieService) filterConfig.getServletContext().getAttribute("cookieService"));
+    }
+
+
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
-
         Optional<Cookie> cookie = cookieService.get(req);
-
         if (cookie.isPresent()) {
             log.info("Cookie found, authorised path");
             processSessionCookie(req, resp, chain, cookie.get());
@@ -50,7 +56,6 @@ public class AuthorisationFilter implements Filter {
     private void processSessionCookie(HttpServletRequest req, HttpServletResponse resp, FilterChain chain, Cookie cookie) {
         String sessionId = cookie.getValue();
         Optional<UserSession> session = sessionService.getById(sessionId);
-
         session.ifPresentOrElse(
                 userSession -> {
                     if (sessionService.isSessionValid(userSession.getExpiresAt())) {

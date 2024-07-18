@@ -13,21 +13,19 @@ import java.util.Optional;
 
 @Slf4j
 public class SessionRepository {
-
     private static SessionRepository INSTANCE;
     private final SessionFactory sessionFactory;
 
-        private SessionRepository(SessionFactory sessionFactory) {
-            this.sessionFactory = sessionFactory;
-        }
+    private SessionRepository(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
 
-        public static SessionRepository getInstance(SessionFactory sessionFactory) {
-            if(INSTANCE == null) {
-                INSTANCE = new SessionRepository(sessionFactory);
-            }
-            return INSTANCE;
+    public static SessionRepository getInstance(SessionFactory sessionFactory) {
+        if (INSTANCE == null) {
+            INSTANCE = new SessionRepository(sessionFactory);
         }
-
+        return INSTANCE;
+    }
 
     public Optional<UserSession> findByUserId(String userId) throws RepositoryException {
         Optional<UserSession> findedSession;
@@ -104,7 +102,7 @@ public class SessionRepository {
                 transaction.commit();
                 log.info("Session deleted: {}", userSession.getId());
             } catch (Exception e) {
-                log.error("Error while deleting session {}",e.getMessage());
+                log.error("Error while deleting session {}", e.getMessage());
                 if (transaction != null) {
                     transaction.rollback();
                     log.info("Transaction is {}", transaction.getStatus());
@@ -134,5 +132,5 @@ public class SessionRepository {
             }
         }
     }
-    }
+}
 
