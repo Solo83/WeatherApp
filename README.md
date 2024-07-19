@@ -2,6 +2,9 @@
 
 ## Description
 
+![image](https://github.com/user-attachments/assets/65aa9d18-a784-4e87-a020-60e83f4975cd)
+
+
 Created according to the technical specifications presented in this [course.](https://zhukovsd.github.io/java-backend-learning-course/Projects/WeatherViewer/)
 
 WeatherApp is a web application to check up the current weather. User can signup and start adding any locations.
