@@ -23,8 +23,12 @@ public final class OpenWeatherApiService {
 
     private static final String API_KEY = PropsUtil.GetOpenWeatherApiKey();
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final HttpClient client = HttpClient.newHttpClient();
+    private static HttpClient client = HttpClient.newHttpClient();
     private static OpenWeatherApiService INSTANCE;
+
+    public OpenWeatherApiService(HttpClient httpClient) {
+        client = httpClient;
+    }
 
     private OpenWeatherApiService() {
     }
