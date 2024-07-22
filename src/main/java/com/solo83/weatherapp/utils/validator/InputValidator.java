@@ -24,7 +24,7 @@ public class InputValidator {
         return INSTANCE;
     }
 
-    public void validatePassword(Map<String, String[]> parameterMap, String password, String passwordConfirm) throws ValidatorException {
+    public void validatePassword(Map<String, String[]> parameterMap, String password, String passwordConfirm) {
         String passwordValue = parameterMap.get(password)[0];
         String confirmationValue = parameterMap.get(passwordConfirm)[0];
         if (passwordValue == null || passwordValue.isEmpty()) {
@@ -46,7 +46,7 @@ public class InputValidator {
         log.info("Password is VALID");
     }
 
-    public void validateUserName(Map<String, String[]> parameterMap, String userName) throws ValidatorException {
+    public void validateUserName(Map<String, String[]> parameterMap, String userName) {
         String userNameValue = parameterMap.get(userName)[0];
         if (userNameValue == null || userNameValue.isEmpty()) {
             log.error("Username is missing");
