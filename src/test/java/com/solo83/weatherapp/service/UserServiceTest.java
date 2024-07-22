@@ -1,6 +1,6 @@
 package com.solo83.weatherapp.service;
 
-import com.solo83.weatherapp.dto.GetUserRequest;
+import com.solo83.weatherapp.dto.UserFromRequest;
 import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.repository.SessionRepository;
 import com.solo83.weatherapp.repository.UserRepository;
@@ -19,15 +19,15 @@ class UserServiceTest {
 
     @Test
     public void testSaveUser() {
-        GetUserRequest getUserRequest = new GetUserRequest("testUser", "testPassword");
-        User savedUser = userService.save(getUserRequest);
+        UserFromRequest userFromRequest = new UserFromRequest("testUser", "testPassword");
+        User savedUser = userService.save(userFromRequest);
         assertEquals("testUser", savedUser.getLogin());
     }
 
     @Test
     public void testSaveUserThrowsException() {
-        GetUserRequest getUserRequest = new GetUserRequest("testUser", "testPassword");
-        assertThrows(ServiceException.class, () -> userService.save(getUserRequest));
+        UserFromRequest userFromRequest = new UserFromRequest("testUser", "testPassword");
+        assertThrows(ServiceException.class, () -> userService.save(userFromRequest));
     }
 
 }

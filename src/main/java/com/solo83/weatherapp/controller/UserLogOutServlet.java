@@ -15,7 +15,7 @@ import java.io.IOException;
 
 @Slf4j
 @WebServlet("/logout")
-public class Logout extends HttpServlet {
+public class UserLogOutServlet extends HttpServlet {
     private SessionService sessionService;
 
     @Override

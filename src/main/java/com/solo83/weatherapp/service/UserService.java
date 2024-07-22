@@ -1,6 +1,6 @@
 package com.solo83.weatherapp.service;
 
-import com.solo83.weatherapp.dto.GetUserRequest;
+import com.solo83.weatherapp.dto.UserFromRequest;
 import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.entity.UserSession;
 import com.solo83.weatherapp.repository.UserRepository;
@@ -53,9 +53,9 @@ public class UserService {
     }
 
 
-    public User save(GetUserRequest getUserRequest) {
-        String hashPass = BCrypt.hashpw(getUserRequest.getPassword(), BCrypt.gensalt(12));
-        User user = new User(getUserRequest.getLogin(), hashPass);
+    public User save(UserFromRequest userFromRequest) {
+        String hashPass = BCrypt.hashpw(userFromRequest.getPassword(), BCrypt.gensalt(12));
+        User user = new User(userFromRequest.getLogin(), hashPass);
         Optional<User> userOptional;
         try {
             userOptional = userRepository.save(user);
@@ -66,15 +66,15 @@ public class UserService {
         return userOptional.get();
     }
 
-    public User getUser(GetUserRequest getUserRequest) {
+    public User getUser(UserFromRequest userFromRequest) {
         User user;
         try {
-            user = userRepository.findByUserName(getUserRequest.getLogin()).get();
+            user = userRepository.findByUserName(userFromRequest.getLogin()).get();
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new ServiceException("User does not exist");
         }
-        String password = getUserRequest.getPassword();
+        String password = userFromRequest.getPassword();
         String hashPass = user.getPassword();
         if (!isPasswordCorrect(password, hashPass)) {
             throw new ServiceException("Wrong password");

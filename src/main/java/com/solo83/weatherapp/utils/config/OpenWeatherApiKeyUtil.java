@@ -7,12 +7,12 @@ import java.util.Properties;
 
 @Slf4j
 @UtilityClass
-public class PropsUtil {
+public class OpenWeatherApiKeyUtil {
 
     public String GetOpenWeatherApiKey() {
         Properties properties = new Properties();
         try {
-            properties.load(PropsUtil.class.getClassLoader().getResourceAsStream("api.key"));
+            properties.load(OpenWeatherApiKeyUtil.class.getClassLoader().getResourceAsStream("api.key"));
         } catch (Exception e) {
             log.error("Error loading api key", e);
         }

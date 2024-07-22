@@ -1,6 +1,6 @@
 package com.solo83.weatherapp.controller;
 
-import com.solo83.weatherapp.dto.GetLocationRequest;
+import com.solo83.weatherapp.dto.LocationFromRequest;
 import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.service.LocationService;
 import com.solo83.weatherapp.service.UserService;
@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 
 @Slf4j
 @WebServlet("/add")
-public class AddLocation extends HttpServlet {
+public class LocationAddServlet extends HttpServlet {
     private ThymeleafTemplateRenderer thymeleafTemplateRenderer;
     private UserService userService;
     private LocationService locationService;
@@ -36,7 +36,7 @@ public class AddLocation extends HttpServlet {
         String name = req.getParameter("name");
         BigDecimal latitude = new BigDecimal(req.getParameter("latitude"));
         BigDecimal longitude = new BigDecimal(req.getParameter("longitude"));
-        GetLocationRequest location = new GetLocationRequest(name, latitude, longitude);
+        LocationFromRequest location = new LocationFromRequest(name, latitude, longitude);
         User user = null;
         try {
             user = userService.getUserFromRequest(req);

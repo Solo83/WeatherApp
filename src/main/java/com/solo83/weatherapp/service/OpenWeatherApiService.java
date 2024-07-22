@@ -2,8 +2,8 @@ package com.solo83.weatherapp.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.solo83.weatherapp.dto.GetLocationRequest;
-import com.solo83.weatherapp.utils.config.PropsUtil;
+import com.solo83.weatherapp.dto.LocationFromRequest;
+import com.solo83.weatherapp.utils.config.OpenWeatherApiKeyUtil;
 import com.solo83.weatherapp.utils.exception.ServiceException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.net.URIBuilder;
@@ -21,7 +21,7 @@ import java.util.Optional;
 
 public final class OpenWeatherApiService {
 
-    private static final String API_KEY = PropsUtil.GetOpenWeatherApiKey();
+    private static final String API_KEY = OpenWeatherApiKeyUtil.GetOpenWeatherApiKey();
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static HttpClient client = HttpClient.newHttpClient();
     private static OpenWeatherApiService INSTANCE;
@@ -40,15 +40,15 @@ public final class OpenWeatherApiService {
         return INSTANCE;
     }
 
-    public List<GetLocationRequest> getLocations(String locationName) throws ServiceException {
-        List<GetLocationRequest> locations;
+    public List<LocationFromRequest> getLocations(String locationName) throws ServiceException {
+        List<LocationFromRequest> locations;
         try {
             String json = geocodingApiRequest(locationName);
             JsonNode geoNode = objectMapper.readTree(json);
             log.info("Geocoding api response: {}", geoNode);
             locations = new ArrayList<>();
             for (JsonNode node : geoNode) {
-                GetLocationRequest location = new GetLocationRequest();
+                LocationFromRequest location = new LocationFromRequest();
                 location.setName(node.get("name").asText());
                 location.setLatitude(node.get("lat").decimalValue());
                 location.setLongitude(node.get("lon").decimalValue());
@@ -60,7 +60,7 @@ public final class OpenWeatherApiService {
                 location.setCountry(node.get("country").asText());
                 locations.add(location);
             }
-            for (GetLocationRequest location : locations) {
+            for (LocationFromRequest location : locations) {
                 String dataJson = currentWeatherDataApiRequest(location.getLatitude().toString(), location.getLongitude().toString());
                 log.info("Data api response: {}", dataJson);
                 JsonNode dataNode = objectMapper.readTree(dataJson);
@@ -74,10 +74,10 @@ public final class OpenWeatherApiService {
         return locations;
     }
 
-    public Optional<GetLocationRequest> updateLocationData(GetLocationRequest getLocationRequest) throws ServiceException {
-        Optional<GetLocationRequest> location;
-        String latitude = getLocationRequest.getLatitude().toString();
-        String longitude = getLocationRequest.getLongitude().toString();
+    public Optional<LocationFromRequest> updateLocationData(LocationFromRequest locationFromRequest) throws ServiceException {
+        Optional<LocationFromRequest> location;
+        String latitude = locationFromRequest.getLatitude().toString();
+        String longitude = locationFromRequest.getLongitude().toString();
         try {
             String dataJson = currentWeatherDataApiRequest(latitude, longitude);
             log.info("Geocoding api response: {}", dataJson);
@@ -85,9 +85,9 @@ public final class OpenWeatherApiService {
             JsonNode mainNode = dataNode.get("main");
             JsonNode sysNode = dataNode.get("sys");
             String temp = mainNode.get("temp").asText();
-            getLocationRequest.setCountry(sysNode.get("country").asText());
-            getLocationRequest.setTemperature(temp);
-            location = Optional.of(getLocationRequest);
+            locationFromRequest.setCountry(sysNode.get("country").asText());
+            locationFromRequest.setTemperature(temp);
+            location = Optional.of(locationFromRequest);
         } catch (Exception e) {
             throw new ServiceException("Error while updating temperature");
         }

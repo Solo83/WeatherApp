@@ -12,14 +12,16 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
 
-@AllArgsConstructor
-@NoArgsConstructor
+@ToString
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @RequiredArgsConstructor
 @Entity
 @Table(name = "Users")

@@ -5,7 +5,7 @@
          version="5.0">
     <servlet>
         <servlet-name>Home</servlet-name>
-        <servlet-class>com.solo83.weatherapp.controller.Home</servlet-class>
+        <servlet-class>com.solo83.weatherapp.controller.HomePageServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>

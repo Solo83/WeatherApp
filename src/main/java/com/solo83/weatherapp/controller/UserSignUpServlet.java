@@ -1,6 +1,6 @@
 package com.solo83.weatherapp.controller;
 
-import com.solo83.weatherapp.dto.GetUserRequest;
+import com.solo83.weatherapp.dto.UserFromRequest;
 import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.service.SessionService;
 import com.solo83.weatherapp.service.UserService;
@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.Map;
 
 @WebServlet("/signup")
-public class SignUp extends HttpServlet {
+public class UserSignUpServlet extends HttpServlet {
     private ThymeleafTemplateRenderer thymeleafTemplateRenderer;
     private UserService userService;
     private SessionService sessionService;
@@ -46,7 +46,7 @@ public class SignUp extends HttpServlet {
             inputValidator.validatePassword(parameterMap, "password", "password_confirm");
             String username = req.getParameter("username");
             String password = req.getParameter("password");
-            user = userService.save(new GetUserRequest(username, password));
+            user = userService.save(new UserFromRequest(username, password));
             sessionService.get(user, resp);
         } catch (Exception e) {
             req.setAttribute("error", e.getMessage());

@@ -1,6 +1,6 @@
 package com.solo83.weatherapp.service;
 
-import com.solo83.weatherapp.dto.GetUserRequest;
+import com.solo83.weatherapp.dto.UserFromRequest;
 import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.entity.UserSession;
 import com.solo83.weatherapp.repository.SessionRepository;
@@ -44,8 +44,8 @@ public class SessionServiceTest {
     @Test
     public void testGetValidSession() {
 
-        GetUserRequest getUserRequest = new GetUserRequest("testNewUser", "testNewPassword");
-        User savedUser = userService.save(getUserRequest);
+        UserFromRequest userFromRequest = new UserFromRequest("testNewUser", "testNewPassword");
+        User savedUser = userService.save(userFromRequest);
 
         Optional<UserSession> session = sessionService.get(savedUser, response);
 

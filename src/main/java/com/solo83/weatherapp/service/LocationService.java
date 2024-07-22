@@ -1,6 +1,6 @@
 package com.solo83.weatherapp.service;
 
-import com.solo83.weatherapp.dto.GetLocationRequest;
+import com.solo83.weatherapp.dto.LocationFromRequest;
 import com.solo83.weatherapp.entity.Location;
 import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.repository.LocationRepository;
@@ -32,11 +32,11 @@ public class LocationService {
             return INSTANCE;
         }
 
-    public void addLocation(GetLocationRequest getLocationRequest, User user) {
+    public void addLocation(LocationFromRequest locationFromRequest, User user) {
             Location location = new Location();
-            location.setLatitude(getLocationRequest.getLatitude());
-            location.setLongitude(getLocationRequest.getLongitude());
-            location.setName(getLocationRequest.getName());
+            location.setLatitude(locationFromRequest.getLatitude());
+            location.setLongitude(locationFromRequest.getLongitude());
+            location.setName(locationFromRequest.getName());
             location.setUser(user);
             log.info("Add location : {}", location);
             try {
@@ -54,19 +54,19 @@ public class LocationService {
         }
     }
 
-    public List<GetLocationRequest> getUpdatedLocation(List<Location> locations) {
-        List<GetLocationRequest> locationRequests = new ArrayList<>();
+    public List<LocationFromRequest> getUpdatedLocation(List<Location> locations) {
+        List<LocationFromRequest> locationRequests = new ArrayList<>();
         for (Location location : locations) {
             Integer id = location.getId();
             String name = location.getName();
             BigDecimal longitude = location.getLongitude();
             BigDecimal latitude = location.getLatitude();
-            GetLocationRequest getLocationRequest = new GetLocationRequest();
-            getLocationRequest.setId(id);
-            getLocationRequest.setName(name);
-            getLocationRequest.setLongitude(longitude);
-            getLocationRequest.setLatitude(latitude);
-            Optional<GetLocationRequest> updatedLocation = openWeatherApiService.updateLocationData(getLocationRequest);
+            LocationFromRequest locationFromRequest = new LocationFromRequest();
+            locationFromRequest.setId(id);
+            locationFromRequest.setName(name);
+            locationFromRequest.setLongitude(longitude);
+            locationFromRequest.setLatitude(latitude);
+            Optional<LocationFromRequest> updatedLocation = openWeatherApiService.updateLocationData(locationFromRequest);
             updatedLocation.ifPresent(locationRequests::add);
         }
         return locationRequests;

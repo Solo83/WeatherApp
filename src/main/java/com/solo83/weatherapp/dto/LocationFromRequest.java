@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 @Data
 @ToString
-public class GetLocationRequest {
+public class LocationFromRequest {
     private Integer id;
     private String name;
     private String country;
@@ -16,13 +16,13 @@ public class GetLocationRequest {
     private BigDecimal longitude;
     private String temperature;
 
-    public GetLocationRequest(String name, BigDecimal latitude, BigDecimal longitude) {
+    public LocationFromRequest(String name, BigDecimal latitude, BigDecimal longitude) {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
-    public GetLocationRequest() {
+    public LocationFromRequest() {
     }
 }
 

@@ -1,6 +1,6 @@
 package com.solo83.weatherapp.controller;
 
-import com.solo83.weatherapp.dto.GetLocationRequest;
+import com.solo83.weatherapp.dto.LocationFromRequest;
 import com.solo83.weatherapp.entity.Location;
 import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.service.LocationService;
@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @WebServlet("/home")
-public class Home extends HttpServlet {
+public class HomePageServlet extends HttpServlet {
     private ThymeleafTemplateRenderer thymeleafTemplateRenderer;
     private UserService userService;
     private LocationService locationService;
@@ -46,7 +46,7 @@ public class Home extends HttpServlet {
                 req.setAttribute("error", "Error while retrieving user locations");
                 thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
             }
-            List<GetLocationRequest> updatedLocation = List.of();
+            List<LocationFromRequest> updatedLocation = List.of();
             try {
                 updatedLocation = locationService.getUpdatedLocation(userLocations);
             } catch (Exception e) {

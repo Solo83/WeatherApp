@@ -1,5 +1,5 @@
 package com.solo83.weatherapp.service;
-import com.solo83.weatherapp.dto.GetLocationRequest;
+import com.solo83.weatherapp.dto.LocationFromRequest;
 
 import com.solo83.weatherapp.utils.exception.ServiceException;
 import org.junit.jupiter.api.Test;
@@ -44,7 +44,7 @@ class OpenWeatherApiServiceTest {
 
         when(httpResponse.body()).thenReturn(geocodingResponse).thenReturn(weatherResponse);
 
-        List<GetLocationRequest> locations = openWeatherApiService.getLocations(cityName);
+        List<LocationFromRequest> locations = openWeatherApiService.getLocations(cityName);
 
         assertEquals(1, locations.size());
         assertEquals("London", locations.get(0).getName());
@@ -64,7 +64,7 @@ class OpenWeatherApiServiceTest {
 
    @Test
     public void testUpdateLocationData() throws Exception {
-        GetLocationRequest locationRequest = new GetLocationRequest();
+        LocationFromRequest locationRequest = new LocationFromRequest();
         locationRequest.setLatitude(BigDecimal.valueOf(51.5074));
         locationRequest.setLongitude(BigDecimal.valueOf(-0.1278));
         String weatherResponse = "{\"main\":{\"temp\":15.0},\"sys\":{\"country\":\"GB\"}}";
@@ -72,7 +72,7 @@ class OpenWeatherApiServiceTest {
         when(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenReturn(httpResponse);
         when(httpResponse.body()).thenReturn(weatherResponse);
 
-        Optional<GetLocationRequest> updatedLocation = openWeatherApiService.updateLocationData(locationRequest);
+        Optional<LocationFromRequest> updatedLocation = openWeatherApiService.updateLocationData(locationRequest);
 
         assertTrue(updatedLocation.isPresent());
         assertEquals("15.0", updatedLocation.get().getTemperature());
@@ -81,7 +81,7 @@ class OpenWeatherApiServiceTest {
 
     @Test
     public void testUpdateLocationDataThrowsException() throws Exception {
-        GetLocationRequest locationRequest = new GetLocationRequest();
+        LocationFromRequest locationRequest = new LocationFromRequest();
         locationRequest.setLatitude(BigDecimal.valueOf(51.5074));
         locationRequest.setLongitude(BigDecimal.valueOf(-0.1278));
         String errorMessage = "Error while updating temperature";
@@ -107,7 +107,7 @@ class OpenWeatherApiServiceTest {
 
     @Test
     public void testApi5xxErrorHandling() throws Exception {
-        GetLocationRequest locationRequest = new GetLocationRequest();
+        LocationFromRequest locationRequest = new LocationFromRequest();
         locationRequest.setLatitude(BigDecimal.valueOf(51.5074));
         locationRequest.setLongitude(BigDecimal.valueOf(-0.1278));
 

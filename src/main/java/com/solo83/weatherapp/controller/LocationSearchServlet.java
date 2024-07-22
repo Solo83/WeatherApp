@@ -1,6 +1,6 @@
 package com.solo83.weatherapp.controller;
 
-import com.solo83.weatherapp.dto.GetLocationRequest;
+import com.solo83.weatherapp.dto.LocationFromRequest;
 import com.solo83.weatherapp.service.OpenWeatherApiService;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -15,7 +15,7 @@ import java.util.List;
 
 @Slf4j
 @WebServlet("/search")
-public class Search extends HttpServlet {
+public class LocationSearchServlet extends HttpServlet {
     private OpenWeatherApiService openWeatherApiService;
 
     @Override
@@ -32,7 +32,7 @@ public class Search extends HttpServlet {
             req.getRequestDispatcher("home").forward(req, resp);
             return;
         }
-        List<GetLocationRequest> locations;
+        List<LocationFromRequest> locations;
         try {
             locations = openWeatherApiService.getLocations(locationName);
         } catch (Exception e) {

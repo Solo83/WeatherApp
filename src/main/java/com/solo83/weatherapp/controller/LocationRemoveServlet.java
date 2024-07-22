@@ -1,8 +1,7 @@
 package com.solo83.weatherapp.controller;
 
-import com.solo83.weatherapp.dto.GetUserRequest;
 import com.solo83.weatherapp.entity.User;
-import com.solo83.weatherapp.service.SessionService;
+import com.solo83.weatherapp.service.LocationService;
 import com.solo83.weatherapp.service.UserService;
 import com.solo83.weatherapp.utils.renderer.ThymeleafTemplateRenderer;
 import jakarta.servlet.ServletConfig;
@@ -14,40 +13,45 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.Optional;
+
 
 @Slf4j
-@WebServlet("/signin")
-public class SignIn extends HttpServlet {
+@WebServlet("/remove")
+public class LocationRemoveServlet extends HttpServlet {
     private ThymeleafTemplateRenderer thymeleafTemplateRenderer;
     private UserService userService;
-    private SessionService sessionService;
+    private LocationService locationService;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         userService = ((UserService) getServletContext().getAttribute("userService"));
-        sessionService = ((SessionService) getServletContext().getAttribute("sessionService"));
+        locationService = ((LocationService) getServletContext().getAttribute("locationService"));
         thymeleafTemplateRenderer = ((ThymeleafTemplateRenderer) getServletContext().getAttribute("thymeleafTemplateRenderer"));
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        thymeleafTemplateRenderer.renderTemplate(req,resp,"signin");
-    }
-
-    @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-       String username = req.getParameter("username");
-       String password = req.getParameter("password");
-       User user;
+        Integer locationId = Integer.valueOf(req.getParameter("id"));
+        Optional<User> user;
         try {
-            user = userService.getUser(new GetUserRequest(username, password));
-            sessionService.get(user,resp).get();
-
+            user = userService.getUserByLocationId(locationId.toString());
         } catch (Exception e) {
             req.setAttribute("error", e.getMessage());
-            thymeleafTemplateRenderer.renderTemplate(req, resp, "signin");
+            thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
             return;
+        }
+        Optional<User> userFromRequest;
+        try {
+            userFromRequest = Optional.of(userService.getUserFromRequest(req));
+        } catch (Exception e) {
+            req.setAttribute("error", e.getMessage());
+            thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
+            return;
+        }
+        if (user.isPresent() && user.get().equals(userFromRequest.get())) {
+            locationService.removeLocation(locationId);
         }
         resp.sendRedirect("home");
     }
