@@ -4,8 +4,6 @@ import com.solo83.weatherapp.dto.GetUserRequest;
 import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.service.SessionService;
 import com.solo83.weatherapp.service.UserService;
-import com.solo83.weatherapp.utils.exception.RepositoryException;
-import com.solo83.weatherapp.utils.exception.ServiceException;
 import com.solo83.weatherapp.utils.renderer.ThymeleafTemplateRenderer;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -46,7 +44,7 @@ public class SignIn extends HttpServlet {
             user = userService.getUser(new GetUserRequest(username, password));
             sessionService.get(user,resp).get();
 
-        } catch (ServiceException | RepositoryException e) {
+        } catch (Exception e) {
             req.setAttribute("error", e.getMessage());
             thymeleafTemplateRenderer.renderTemplate(req, resp, "signin");
             return;

@@ -4,8 +4,6 @@ import com.solo83.weatherapp.dto.GetUserRequest;
 import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.service.SessionService;
 import com.solo83.weatherapp.service.UserService;
-import com.solo83.weatherapp.utils.exception.RepositoryException;
-import com.solo83.weatherapp.utils.exception.ValidatorException;
 import com.solo83.weatherapp.utils.renderer.ThymeleafTemplateRenderer;
 import com.solo83.weatherapp.utils.validator.InputValidator;
 import jakarta.servlet.ServletConfig;
@@ -50,7 +48,7 @@ public class SignUp extends HttpServlet {
             String password = req.getParameter("password");
             user = userService.save(new GetUserRequest(username, password));
             sessionService.get(user, resp);
-        } catch (ValidatorException | RepositoryException e) {
+        } catch (Exception e) {
             req.setAttribute("error", e.getMessage());
             thymeleafTemplateRenderer.renderTemplate(req, resp, "signup");
             return;

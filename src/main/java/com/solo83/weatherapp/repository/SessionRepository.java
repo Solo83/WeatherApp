@@ -27,7 +27,7 @@ public class SessionRepository {
         return INSTANCE;
     }
 
-    public Optional<UserSession> findByUserId(String userId) throws RepositoryException {
+    public Optional<UserSession> findByUserId(String userId) {
         Optional<UserSession> findedSession;
         try (Session session = sessionFactory.openSession()) {
             try {
@@ -43,7 +43,7 @@ public class SessionRepository {
         }
     }
 
-    public Optional<UserSession> findById(String id) throws RepositoryException {
+    public Optional<UserSession> findById(String id) {
         Optional<UserSession> findedSession;
         try (Session session = sessionFactory.openSession()) {
             try {
@@ -59,7 +59,7 @@ public class SessionRepository {
         }
     }
 
-    public List<UserSession> findAll() throws RepositoryException {
+    public List<UserSession> findAll() {
         List<UserSession> userSessions;
         try (Session session = sessionFactory.openSession()) {
             Query<UserSession> query = session.createQuery("from UserSession ", UserSession.class);
@@ -72,7 +72,7 @@ public class SessionRepository {
         return userSessions;
     }
 
-    public void save(UserSession userSession) throws RepositoryException {
+    public void save(UserSession userSession) {
         Optional<UserSession> addedSession;
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
@@ -92,7 +92,7 @@ public class SessionRepository {
         }
     }
 
-    public void delete(String id) throws RepositoryException {
+    public void delete(String id) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             try {
@@ -112,7 +112,7 @@ public class SessionRepository {
         }
     }
 
-    public void update(UserSession userSession) throws RepositoryException {
+    public void update(UserSession userSession) {
         Optional<UserSession> updatedSession;
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {

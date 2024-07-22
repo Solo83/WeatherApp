@@ -4,7 +4,6 @@ import com.solo83.weatherapp.dto.GetLocationRequest;
 import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.service.LocationService;
 import com.solo83.weatherapp.service.UserService;
-import com.solo83.weatherapp.utils.exception.ServiceException;
 import com.solo83.weatherapp.utils.renderer.ThymeleafTemplateRenderer;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -41,7 +40,7 @@ public class AddLocation extends HttpServlet {
         User user = null;
         try {
             user = userService.getUserFromRequest(req);
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             req.setAttribute("error", e.getMessage());
             thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
         }

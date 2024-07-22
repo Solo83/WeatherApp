@@ -5,7 +5,6 @@ import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.entity.UserSession;
 import com.solo83.weatherapp.repository.SessionRepository;
 import com.solo83.weatherapp.repository.UserRepository;
-import com.solo83.weatherapp.utils.exception.RepositoryException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +42,7 @@ public class SessionServiceTest {
     }
 
     @Test
-    public void testGetValidSession() throws RepositoryException {
+    public void testGetValidSession() {
 
         GetUserRequest getUserRequest = new GetUserRequest("testNewUser", "testNewPassword");
         User savedUser = userService.save(getUserRequest);

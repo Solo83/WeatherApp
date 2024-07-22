@@ -4,7 +4,6 @@ import com.solo83.weatherapp.dto.GetUserRequest;
 import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.entity.UserSession;
 import com.solo83.weatherapp.repository.UserRepository;
-import com.solo83.weatherapp.utils.exception.RepositoryException;
 import com.solo83.weatherapp.utils.exception.ServiceException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,7 +33,7 @@ public class UserService {
         return INSTANCE;
     }
 
-    public User getUserFromRequest(HttpServletRequest req) throws ServiceException {
+    public User getUserFromRequest(HttpServletRequest req) {
         User user = (User) req.getAttribute("user");
 
         if (user == null) {
@@ -50,55 +49,48 @@ public class UserService {
             }
             user = session.get().getUser();
         }
-
         return user;
     }
 
 
-    public User save(GetUserRequest getUserRequest) throws RepositoryException {
+    public User save(GetUserRequest getUserRequest) {
         String hashPass = BCrypt.hashpw(getUserRequest.getPassword(), BCrypt.gensalt(12));
         User user = new User(getUserRequest.getLogin(), hashPass);
         Optional<User> userOptional;
         try {
             userOptional = userRepository.save(user);
-        } catch (RepositoryException e) {
-            throw new RepositoryException("User cant be saved");
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new ServiceException("User can't be saved");
         }
-
         return userOptional.get();
-
     }
 
-    public User getUser(GetUserRequest getUserRequest) throws ServiceException, RepositoryException {
+    public User getUser(GetUserRequest getUserRequest) {
         User user;
         try {
             user = userRepository.findByUserName(getUserRequest.getLogin()).get();
-        } catch (RepositoryException e) {
-            throw new RepositoryException("User does not exist");
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new ServiceException("User does not exist");
         }
-
         String password = getUserRequest.getPassword();
         String hashPass = user.getPassword();
-
         if (!isPasswordCorrect(password, hashPass)) {
             throw new ServiceException("Wrong password");
         }
-
         log.info("Current user: {}", user.getLogin());
-
         return user;
-
     }
 
 
-    public Optional<User> getUserByLocationId(String locationId) throws RepositoryException {
+    public Optional<User> getUserByLocationId(String locationId) {
         Optional<User> user;
         try {
             user = userRepository.findByLocationId(locationId);
-        } catch (RepositoryException e) {
-            throw new RepositoryException("User does not exist");
+        } catch (Exception e) {
+            throw new ServiceException("User does not exist");
         }
-
         return user;
     }
 

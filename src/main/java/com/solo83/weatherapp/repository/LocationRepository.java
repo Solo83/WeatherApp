@@ -27,7 +27,7 @@ public class LocationRepository {
         return INSTANCE;
     }
 
-    public void save(Location entity) throws RepositoryException {
+    public void save(Location entity) {
         Optional<Location> location;
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
@@ -67,7 +67,7 @@ public class LocationRepository {
         }
     }
 
-    public List<Location> findByUserID(Integer userId) throws RepositoryException {
+    public List<Location> findByUserID(Integer userId) {
         List<Location> findedLocations;
         try (Session session = sessionFactory.openSession()) {
             try {

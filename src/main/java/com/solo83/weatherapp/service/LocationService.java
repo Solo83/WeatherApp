@@ -4,7 +4,6 @@ import com.solo83.weatherapp.dto.GetLocationRequest;
 import com.solo83.weatherapp.entity.Location;
 import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.repository.LocationRepository;
-import com.solo83.weatherapp.utils.exception.RepositoryException;
 import com.solo83.weatherapp.utils.exception.ServiceException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,20 +41,20 @@ public class LocationService {
             log.info("Add location : {}", location);
             try {
             locationRepository.save(location);
-        } catch (RepositoryException e) {
+        } catch (Exception e) {
             log.error("Location already exist in DB");
         }
     }
 
-    public List<Location> getLocations(Integer userId) throws RepositoryException {
+    public List<Location> getLocations(Integer userId) {
         try {
             return locationRepository.findByUserID(userId);
-        } catch (RepositoryException e) {
-            throw new RepositoryException("Error while getting location");
+        } catch (Exception e) {
+            throw new ServiceException("Error while getting location");
         }
     }
 
-    public List<GetLocationRequest> getUpdatedLocation(List<Location> locations) throws ServiceException {
+    public List<GetLocationRequest> getUpdatedLocation(List<Location> locations) {
         List<GetLocationRequest> locationRequests = new ArrayList<>();
         for (Location location : locations) {
             Integer id = location.getId();
@@ -67,10 +66,8 @@ public class LocationService {
             getLocationRequest.setName(name);
             getLocationRequest.setLongitude(longitude);
             getLocationRequest.setLatitude(latitude);
-
             Optional<GetLocationRequest> updatedLocation = openWeatherApiService.updateLocationData(getLocationRequest);
             updatedLocation.ifPresent(locationRequests::add);
-
         }
         return locationRequests;
         }
@@ -78,7 +75,7 @@ public class LocationService {
     public void removeLocation(Integer id) {
         try {
             locationRepository.delete(id);
-        } catch (RepositoryException e) {
+        } catch (Exception e) {
             log.error("Location does not exist in DB");
         }
     }

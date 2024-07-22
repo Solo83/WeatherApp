@@ -10,7 +10,6 @@ import com.solo83.weatherapp.service.OpenWeatherApiService;
 import com.solo83.weatherapp.service.SessionService;
 import com.solo83.weatherapp.service.UserService;
 import com.solo83.weatherapp.utils.config.HibernateUtil;
-import com.solo83.weatherapp.utils.exception.RepositoryException;
 import com.solo83.weatherapp.utils.renderer.ThymeleafTemplateRenderer;
 import com.solo83.weatherapp.utils.validator.InputValidator;
 import jakarta.servlet.ServletContextEvent;
@@ -46,7 +45,7 @@ public class AppContextListener implements ServletContextListener {
                     sessionService.remove(sessionId);
                 }
             }
-        } catch (RepositoryException e) {
+        } catch (Exception e) {
             log.error("Error while removing session", e);
         }
     };

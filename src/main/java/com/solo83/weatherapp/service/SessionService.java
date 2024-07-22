@@ -3,7 +3,6 @@ package com.solo83.weatherapp.service;
 import com.solo83.weatherapp.entity.User;
 import com.solo83.weatherapp.entity.UserSession;
 import com.solo83.weatherapp.repository.SessionRepository;
-import com.solo83.weatherapp.utils.exception.RepositoryException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -35,30 +34,25 @@ public class SessionService {
         return INSTANCE;
     }
 
-    public Optional<UserSession> get(User user, HttpServletResponse resp) throws RepositoryException {
+    public Optional<UserSession> get(User user, HttpServletResponse resp) {
         String userId = user.getId().toString();
         Optional<UserSession> session;
-
         try {
             session = sessionRepository.findByUserId(userId);
-        } catch (RepositoryException e) {
+        } catch (Exception e) {
             session = Optional.of(create(user));
             sessionRepository.save(session.get());
         }
-
         UserSession userSession = session.get();
-
         if (!isSessionValid(userSession.getExpiresAt())) {
             setSessionExpirationTime(userSession);
             sessionRepository.update(userSession);
         }
-
         cookieService.set(resp,userSession.getId());
-
         return session;
     }
 
-    public void remove(String sessionId) throws RepositoryException {
+    public void remove(String sessionId) {
         sessionRepository.delete(sessionId);
     }
 
@@ -67,14 +61,15 @@ public class SessionService {
         String sessionId = cookie.get().getValue();
         try {
             remove(sessionId);
-        } catch (RepositoryException e) {
+        } catch (Exception e) {
+            log.error(e.getMessage());
             cookieService.invalidate(req,resp);
         }
         cookieService.invalidate(req,resp);
         log.info("Session invalidated {}", sessionId);
     }
 
-    public List<UserSession> getAll() throws RepositoryException {
+    public List<UserSession> getAll() {
         return sessionRepository.findAll();
     }
 
@@ -85,7 +80,8 @@ public class SessionService {
     public Optional<UserSession> getById(String sessionId) {
         try {
             return sessionRepository.findById(sessionId);
-        } catch (RepositoryException e) {
+        } catch (Exception e) {
+            log.error(e.getMessage());
             return Optional.empty();
         }
     }
