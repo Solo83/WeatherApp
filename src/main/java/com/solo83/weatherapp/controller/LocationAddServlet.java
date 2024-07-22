@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Slf4j
 @WebServlet("/add")
@@ -40,11 +41,15 @@ public class LocationAddServlet extends HttpServlet {
         User user = null;
         try {
             user = userService.getUserFromRequest(req);
+            locationService.addLocation(location, user);
         } catch (Exception e) {
             req.setAttribute("error", e.getMessage());
+            List<LocationFromRequest> userLocations = locationService.getUpdatedLocation(locationService.getLocations(user.getId()));
+            req.setAttribute("userLocations", userLocations);
             thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
+            return;
         }
-        locationService.addLocation(location, user);
+
         resp.sendRedirect("home");
     }
 }

@@ -37,8 +37,6 @@ public class AuthorisationFilter implements Filter {
         cookieService = ((CookieService) filterConfig.getServletContext().getAttribute("cookieService"));
     }
 
-
-
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;

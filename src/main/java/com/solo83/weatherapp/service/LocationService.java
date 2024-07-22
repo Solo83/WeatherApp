@@ -43,6 +43,7 @@ public class LocationService {
             locationRepository.save(location);
         } catch (Exception e) {
             log.error("Location already exist in DB");
+            throw new ServiceException("You already have this location");
         }
     }
 
@@ -50,7 +51,8 @@ public class LocationService {
         try {
             return locationRepository.findByUserID(userId);
         } catch (Exception e) {
-            throw new ServiceException("Error while getting location");
+            log.error(e.getMessage());
+            throw new ServiceException("Error while retrieving user locations");
         }
     }
 
@@ -66,7 +68,13 @@ public class LocationService {
             locationFromRequest.setName(name);
             locationFromRequest.setLongitude(longitude);
             locationFromRequest.setLatitude(latitude);
-            Optional<LocationFromRequest> updatedLocation = openWeatherApiService.updateLocationData(locationFromRequest);
+            Optional<LocationFromRequest> updatedLocation;
+            try {
+                updatedLocation = openWeatherApiService.updateLocationData(locationFromRequest);
+            } catch (ServiceException e) {
+                log.error(e.getMessage());
+                throw new ServiceException("Error while updating locations");
+            }
             updatedLocation.ifPresent(locationRequests::add);
         }
         return locationRequests;

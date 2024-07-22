@@ -43,7 +43,7 @@ public class HomePageServlet extends HttpServlet {
             try {
                 userLocations = locationService.getLocations(user.getId());
             } catch (Exception e) {
-                req.setAttribute("error", "Error while retrieving user locations");
+                req.setAttribute("error", e.getMessage());
                 thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
                 return;
             }
@@ -51,7 +51,7 @@ public class HomePageServlet extends HttpServlet {
             try {
                 updatedLocation = locationService.getUpdatedLocation(userLocations);
             } catch (Exception e) {
-                req.setAttribute("error", "Error while updating locations");
+                req.setAttribute("error", e.getMessage());
                 thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
                 return;
             }

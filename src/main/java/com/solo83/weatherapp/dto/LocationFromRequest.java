@@ -1,12 +1,10 @@
 package com.solo83.weatherapp.dto;
 
 import lombok.Data;
-import lombok.ToString;
 
 import java.math.BigDecimal;
 
 @Data
-@ToString
 public class LocationFromRequest {
     private Integer id;
     private String name;

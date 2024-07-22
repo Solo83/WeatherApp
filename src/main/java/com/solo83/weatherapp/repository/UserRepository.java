@@ -26,7 +26,7 @@ public class UserRepository {
         return INSTANCE;
     }
 
-    public Optional<User> findByUserName(String userName) throws RepositoryException {
+    public Optional<User> findByUserName(String userName) {
         Optional<User> findedUser;
         try (Session session = sessionFactory.openSession()) {
             try {
@@ -42,7 +42,7 @@ public class UserRepository {
         }
     }
 
-    public Optional<User> findByLocationId(String locationId) throws RepositoryException {
+    public Optional<User> findByLocationId(String locationId) {
         Optional<User> findedUser;
         try (Session session = sessionFactory.openSession()) {
             try {
@@ -58,7 +58,7 @@ public class UserRepository {
         }
     }
 
-    public Optional<User> save(User user) throws RepositoryException {
+    public Optional<User> save(User user) {
         Optional<User> addedUser;
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
