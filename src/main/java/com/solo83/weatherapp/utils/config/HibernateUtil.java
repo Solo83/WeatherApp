@@ -1,8 +1,8 @@
 package com.solo83.weatherapp.utils.config;
 
 import com.solo83.weatherapp.entity.Location;
-import com.solo83.weatherapp.entity.UserSession;
 import com.solo83.weatherapp.entity.User;
+import com.solo83.weatherapp.entity.UserSession;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.SessionFactory;
@@ -12,11 +12,10 @@ import java.util.Properties;
 
 @Slf4j
 @UtilityClass
-public final class HibernateUtil {
+public class HibernateUtil {
+    private SessionFactory sessionFactory;
 
-    private static SessionFactory sessionFactory;
-
-    public static SessionFactory getSessionFactory() {
+    public SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
             Properties properties = new Properties();
             try {
