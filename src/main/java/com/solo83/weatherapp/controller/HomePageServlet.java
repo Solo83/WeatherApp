@@ -39,19 +39,21 @@ public class HomePageServlet extends HttpServlet {
             return;
         }
         if (user != null) {
-            List<Location> userLocations = List.of();
+            List<Location> userLocations;
             try {
                 userLocations = locationService.getLocations(user.getId());
             } catch (Exception e) {
                 req.setAttribute("error", "Error while retrieving user locations");
                 thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
+                return;
             }
-            List<LocationFromRequest> updatedLocation = List.of();
+            List<LocationFromRequest> updatedLocation;
             try {
                 updatedLocation = locationService.getUpdatedLocation(userLocations);
             } catch (Exception e) {
                 req.setAttribute("error", "Error while updating locations");
                 thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
+                return;
             }
             req.setAttribute("user", user);
             req.setAttribute("userLocations", updatedLocation);
