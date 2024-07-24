@@ -1,6 +1,6 @@
 package com.solo83.weatherapp.service;
-import com.solo83.weatherapp.dto.LocationFromRequest;
 
+import com.solo83.weatherapp.dto.LocationFromRequest;
 import com.solo83.weatherapp.utils.exception.ServiceException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,7 +8,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -65,8 +64,8 @@ class OpenWeatherApiServiceTest {
    @Test
     public void testUpdateLocationData() throws Exception {
         LocationFromRequest locationRequest = new LocationFromRequest();
-        locationRequest.setLatitude(BigDecimal.valueOf(51.5074));
-        locationRequest.setLongitude(BigDecimal.valueOf(-0.1278));
+        locationRequest.setLatitude(51.5074);
+        locationRequest.setLongitude(-0.1278);
         String weatherResponse = "{\"main\":{\"temp\":15.0},\"sys\":{\"country\":\"GB\"}}";
 
         when(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenReturn(httpResponse);
@@ -82,8 +81,8 @@ class OpenWeatherApiServiceTest {
     @Test
     public void testUpdateLocationDataThrowsException() throws Exception {
         LocationFromRequest locationRequest = new LocationFromRequest();
-        locationRequest.setLatitude(BigDecimal.valueOf(51.5074));
-        locationRequest.setLongitude(BigDecimal.valueOf(-0.1278));
+        locationRequest.setLatitude(51.5074);
+        locationRequest.setLongitude(-0.1278);
         String errorMessage = "Error while updating temperature";
 
         when(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenThrow(new RuntimeException());
@@ -108,8 +107,8 @@ class OpenWeatherApiServiceTest {
     @Test
     public void testApi5xxErrorHandling() throws Exception {
         LocationFromRequest locationRequest = new LocationFromRequest();
-        locationRequest.setLatitude(BigDecimal.valueOf(51.5074));
-        locationRequest.setLongitude(BigDecimal.valueOf(-0.1278));
+        locationRequest.setLatitude(51.5074);
+        locationRequest.setLongitude(-0.1278);
 
         when(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
                 .thenThrow(new InterruptedException());

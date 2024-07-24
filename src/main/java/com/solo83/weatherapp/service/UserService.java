@@ -39,19 +39,19 @@ public class UserService {
         if (user == null) {
             Optional<Cookie> cookie = cookieService.get(req);
             if (cookie.isEmpty()) {
-                throw new ServiceException("Cookie not found");
+                log.error("Cookie not found");
+                return user;
             }
-
             String sessionId = cookie.get().getValue();
             Optional<UserSession> session = sessionService.getById(sessionId);
             if (session.isEmpty()) {
-                throw new ServiceException("Session not found");
+                log.error("Session not found");
+                return user;
             }
             user = session.get().getUser();
         }
         return user;
     }
-
 
     public User save(UserFromRequest userFromRequest) {
         String hashPass = BCrypt.hashpw(userFromRequest.getPassword(), BCrypt.gensalt(12));
@@ -61,7 +61,7 @@ public class UserService {
             userOptional = userRepository.save(user);
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new ServiceException("User can't be saved");
+            throw new ServiceException("User can't be saved (already exists)");
         }
         return userOptional.get();
     }
@@ -72,7 +72,7 @@ public class UserService {
             user = userRepository.findByUserName(userFromRequest.getLogin()).get();
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new ServiceException("User does not exist");
+            throw new ServiceException("User does not exist (getUser from request error)");
         }
         String password = userFromRequest.getPassword();
         String hashPass = user.getPassword();
@@ -83,13 +83,12 @@ public class UserService {
         return user;
     }
 
-
-    public Optional<User> getUserByLocationId(String locationId) {
+    public Optional<User> getUserByLocationId(String locationId,String userId) {
         Optional<User> user;
         try {
-            user = userRepository.findByLocationId(locationId);
+            user = userRepository.findByLocationId(locationId,userId);
         } catch (Exception e) {
-            throw new ServiceException("User does not exist");
+            throw new ServiceException("getUserByLocationId error");
         }
         return user;
     }
@@ -98,5 +97,7 @@ public class UserService {
         return BCrypt.checkpw(password, hashPass);
     }
 
-
+    public void update(User user) {
+        userRepository.update(user);
+    }
 }

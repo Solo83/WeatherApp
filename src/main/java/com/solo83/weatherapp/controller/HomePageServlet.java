@@ -31,13 +31,8 @@ public class HomePageServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        User user;
-        try {
-            user = userService.getUserFromRequest(req);
-        } catch (Exception e) {
-            thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
-            return;
-        }
+        User user = userService.getUserFromRequest(req);
+
         if (user != null) {
             List<Location> userLocations;
             try {

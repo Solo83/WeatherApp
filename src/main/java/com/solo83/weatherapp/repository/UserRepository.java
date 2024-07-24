@@ -42,12 +42,14 @@ public class UserRepository {
         }
     }
 
-    public Optional<User> findByLocationId(String locationId) {
+    public Optional<User> findByLocationId(String locationId,String userId) {
         Optional<User> findedUser;
         try (Session session = sessionFactory.openSession()) {
             try {
-                Query<User> query = session.createQuery("from User u join Location l on u.id=l.user.id where l.id = :locationId", User.class);
+                //Query<User> query = session.createQuery("from User u join Location l on u.id=l.user.id where l.id = :locationId", User.class);
+                Query<User> query = session.createQuery("from User u join u.locations l where l.id = :locationId and u.id = :userId" , User.class);
                 query.setParameter("locationId", locationId);
+                query.setParameter("userId", userId);
                 findedUser = Optional.of(query.getSingleResult());
                 log.info("User found");
             } catch (Exception e) {
@@ -75,6 +77,29 @@ public class UserRepository {
                     log.info("Transaction is {}", transaction.getStatus());
                 }
                 throw new RepositoryException("Error while adding user");
+            }
+            return addedUser;
+        }
+    }
+
+
+    public Optional<User> update(User user) {
+        Optional<User> addedUser;
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            try {
+                transaction = session.beginTransaction();
+                session.merge(user);
+                transaction.commit();
+                addedUser = Optional.of(user);
+                log.info("Updated user: {}", addedUser.get());
+            } catch (Exception e) {
+                log.error("Error while update user:", e);
+                if (transaction != null) {
+                    transaction.rollback();
+                    log.info("Transaction is {}", transaction.getStatus());
+                }
+                throw new RepositoryException("Error while updating user");
             }
             return addedUser;
         }

@@ -5,7 +5,6 @@ import com.solo83.weatherapp.utils.exception.RepositoryException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 import java.util.List;
@@ -27,59 +26,54 @@ public class LocationRepository {
         return INSTANCE;
     }
 
-    public void save(Location entity) {
-        Optional<Location> location;
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            try {
-                transaction = session.beginTransaction();
-                session.persist(entity);
-                transaction.commit();
-                location = Optional.of(entity);
-                log.info("Location added: {}", location.get());
-            } catch (Exception e) {
-                log.error("Error while adding location");
-                if (transaction != null) {
-                    transaction.rollback();
-                }
-                throw new RepositoryException("Error while adding location");
-            }
-        }
-    }
-
-    public void delete(Integer id) throws RepositoryException {
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            try {
-                transaction = session.beginTransaction();
-                Location location = session.get(Location.class, id);
-                session.remove(location);
-                transaction.commit();
-                log.info("Location deleted: {}", id);
-            } catch (Exception e) {
-                log.error("Error while deleting location {}", e.getMessage());
-                if (transaction != null) {
-                    transaction.rollback();
-                    log.info("Transaction is {}", transaction.getStatus());
-                }
-                throw new RepositoryException("Error updating location");
-            }
-        }
-    }
 
     public List<Location> findByUserID(Integer userId) {
         List<Location> findedLocations;
         try (Session session = sessionFactory.openSession()) {
             try {
-                Query<Location> query = session.createQuery("from Location as location where location.user.id = :id", Location.class);
+               // Query<Location> query = session.createQuery("from Location as location where location.user.id = :id", Location.class);
+                Query<Location> query = session.createQuery("from Location as location join location.users u where u.id = :id", Location.class);
                 query.setParameter("id", userId);
                 findedLocations = query.getResultList();
                 log.info("Locations size {}", findedLocations);
             } catch (Exception e) {
                 log.error("Error while getting Locations by userId");
-                throw new RepositoryException("Error while getting Locations by userId");
+                 throw new RepositoryException("Error while getting Locations by userId");
             }
             return findedLocations;
+        }
+    }
+
+    public Optional<Location> getLocation(Double latitude, Double longitude) {
+        Optional<Location> location;
+        try (Session session = sessionFactory.openSession()) {
+            try {
+                Query<Location> query = session.createQuery("from Location where latitude = :latitude and longitude = :longitude", Location.class);
+                query.setParameter("latitude", latitude);
+                query.setParameter("longitude", longitude);
+                location = Optional.of(query.getSingleResult());
+                log.info("Location found");
+            } catch (Exception e) {
+                log.error("Error", e);
+                return Optional.empty();
+            }
+            return location;
+        }
+    }
+
+    public Optional<Location> get(Integer id) {
+        Optional<Location> location;
+        try (Session session = sessionFactory.openSession()) {
+            try {
+                Query<Location> query = session.createQuery("from Location where id = :id", Location.class);
+                query.setParameter("id", id);
+                location = Optional.of(query.getSingleResult());
+                log.info("Location found");
+            } catch (Exception e) {
+                log.error("Error", e);
+                return Optional.empty();
+            }
+            return location;
         }
     }
 }

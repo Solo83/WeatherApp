@@ -30,10 +30,10 @@ public class AppContextListener implements ServletContextListener {
     private final SessionRepository sessionRepository = SessionRepository.getInstance(sessionFactory);
     private final SessionService sessionService = SessionService.getInstance(sessionRepository, cookieService);
     private final LocationRepository locationRepository = LocationRepository.getInstance(sessionFactory);
-    private final LocationService locationService = LocationService.getInstance(locationRepository, openWeatherApiService);
     private final UserRepository userRepository = UserRepository.getInstance(sessionFactory);
     private final UserService userService = UserService.getInstance(userRepository,cookieService,sessionService);
     private final ThymeleafTemplateRenderer thymeleafTemplateRenderer = ThymeleafTemplateRenderer.getInstance();
+    private final LocationService locationService = LocationService.getInstance(userService,locationRepository, openWeatherApiService);
     private final InputValidator inputValidator = InputValidator.getInstance();
 
     final Runnable sessionChecker = () -> {

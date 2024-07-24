@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "Sessions")
+@Table(name = "sessions")
 public class UserSession {
     @Id
     @Column(name = "id", unique = true)

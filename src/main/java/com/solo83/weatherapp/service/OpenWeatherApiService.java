@@ -50,8 +50,10 @@ public final class OpenWeatherApiService {
             for (JsonNode node : geoNode) {
                 LocationFromRequest location = new LocationFromRequest();
                 location.setName(node.get("name").asText());
-                location.setLatitude(node.get("lat").decimalValue());
-                location.setLongitude(node.get("lon").decimalValue());
+                Double lat = node.get("lat").asDouble();
+                Double lon = node.get("lon").asDouble();
+                location.setLatitude(lat);
+                location.setLongitude(lon);
                 if (node.has("state")) {
                     location.setState(node.get("state").asText());
                 } else {

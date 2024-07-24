@@ -1,12 +1,13 @@
 package com.solo83.weatherapp.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -16,41 +17,55 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.proxy.HibernateProxy;
 
-import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
-@ToString
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @RequiredArgsConstructor
+@ToString(exclude = "users")
 @Entity
-@Table(name = "Locations",
-        uniqueConstraints = {@UniqueConstraint(columnNames = {"userId", "latitude","longitude"})}
+@Table(name = "locations", uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "latitude","longitude"})}
 )
-
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column()
     private Integer id;
 
-    @Column(name = "name")
+    @Column()
     @NonNull
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "userId", referencedColumnName = "id")
-    private User user;
+    @ManyToMany (mappedBy = "locations", fetch = FetchType.EAGER,cascade = {
+            CascadeType.PERSIST,
+    })
+    private Set<User> users = new HashSet<>();
 
-    @Column(name = "latitude")
-    private BigDecimal latitude;
+    @Column()
+    private Double latitude;
 
-    @Column(name = "longitude")
-    private BigDecimal longitude;
+    @Column()
+    private Double longitude;
 
+    @Override
+    public final boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null) return false;
+        Class<?> oEffectiveClass = object instanceof HibernateProxy ? ((HibernateProxy) object).getHibernateLazyInitializer().getPersistentClass() : object.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Location location = (Location) object;
+        return getId() != null && Objects.equals(getId(), location.getId());
+    }
 
-
-
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
 }

@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.List;
 
 @Slf4j
@@ -35,8 +34,8 @@ public class LocationAddServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String name = req.getParameter("name");
-        BigDecimal latitude = new BigDecimal(req.getParameter("latitude"));
-        BigDecimal longitude = new BigDecimal(req.getParameter("longitude"));
+        Double latitude = Double.parseDouble(req.getParameter("latitude"));
+        Double longitude = Double.parseDouble(req.getParameter("longitude"));
         LocationFromRequest location = new LocationFromRequest(name, latitude, longitude);
         User user = null;
         try {
@@ -49,7 +48,6 @@ public class LocationAddServlet extends HttpServlet {
             thymeleafTemplateRenderer.renderTemplate(req, resp, "home");
             return;
         }
-
         resp.sendRedirect("home");
     }
 }
