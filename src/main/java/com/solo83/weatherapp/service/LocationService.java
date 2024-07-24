@@ -27,9 +27,9 @@ public class LocationService {
 
     }
 
-    public static LocationService getInstance(UserService userService,LocationRepository locationRepository, OpenWeatherApiService openWeatherApiService) {
+    public static LocationService getInstance(UserService userService, LocationRepository locationRepository, OpenWeatherApiService openWeatherApiService) {
         if (INSTANCE == null) {
-            INSTANCE = new LocationService(userService,locationRepository, openWeatherApiService);
+            INSTANCE = new LocationService(userService, locationRepository, openWeatherApiService);
         }
         return INSTANCE;
     }
@@ -42,6 +42,9 @@ public class LocationService {
 
         location.ifPresentOrElse(
                 loc -> {
+                    if (user.getLocations().contains(loc)) {
+                        throw new ServiceException("You already have this location");
+                    }
                     user.addLocation(loc);
                     userService.update(user);
                 },

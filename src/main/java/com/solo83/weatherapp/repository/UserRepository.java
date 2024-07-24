@@ -82,7 +82,6 @@ public class UserRepository {
         }
     }
 
-
     public Optional<User> update(User user) {
         Optional<User> addedUser;
         Transaction transaction = null;
